@@ -1,0 +1,32 @@
+﻿using MathCLI.MathKernel;
+using MathCLI.MathTerm;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MathCLI.MathExpression.Terms
+{
+    public class Subtraction : ITerm
+    {
+        ITerm left;
+        ITerm right;
+
+        public Subtraction(ITerm left, ITerm right)
+        {
+            this.left = left;
+            this.right = right;
+        }
+
+        public Fraction Execute(VariableContext context)
+        {
+            return left.Execute(context) - right.Execute(context);
+        }
+
+        public override string ToString()
+        {
+            return $"{left}-{right}";
+        }
+    }
+}
