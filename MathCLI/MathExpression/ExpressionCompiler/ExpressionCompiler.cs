@@ -112,27 +112,28 @@ namespace MathCLI.MathExpression.ExpressionCompiler
         // P -> abc(E, E ... ,E)
         private ITerm GetAbc()
         {
-            // Get token
-            Token current = Tokens[pos];
-            if (current.Kind != TokenType.Function)
+            // Get abc token
+            Token abc = Tokens[pos];
+            if (abc.Kind != TokenType.Function)
                 return GetFactor();
 
-            // Move to open bracket
+            // Move through open bracket
             Token open = Tokens[++pos];
             if (open.Kind != TokenType.OpenBracket)
                 throw new Exception("Need bracket after function");
-
             pos++;
-            ITerm[] args = GetArgs();
 
+            // Get fucntion arguments
+            ITerm[] args = GetCommaArgs();
+
+            // Move through close bracket
             Token? close = !IsOutLength() ? Tokens[pos] : null;
             if (!close.HasValue || close.Value.Kind != TokenType.CloseBracket)
                 throw new Exception("Need close bracket");
-
             pos++;
 
-
-            if (current.IsMatch(Op.Pow))
+            // Match functions
+            if (abc.IsMatch(Op.Pow))
                 return new Power(args[0], args[1]);
 
             throw new Exception("Not found function");
@@ -198,32 +199,23 @@ namespace MathCLI.MathExpression.ExpressionCompiler
             return pos > Tokens.Count - 1;
         }
 
-        private ITerm[] GetArgs()
+        private ITerm[] GetCommaArgs()
         {
-            List<ITerm> args = new List<ITerm>();
+            var args = new List<ITerm>();
 
-            while (!IsOutLength())
+            if (!IsOutLength() && Tokens[pos].Kind == TokenType.CloseBracket)
+                return args.ToArray();
+
+            args.Add(GetExpression());
+
+            while (!IsOutLength() && Tokens[pos].Kind == TokenType.Comma)
             {
+                pos++;
+
+                if (IsOutLength())
+                    throw new Exception("Expect comma");
+
                 args.Add(GetExpression());
-
-                Token next;
-                if (!IsOutLength())
-                {
-                    next = Tokens[pos];
-                }
-                else
-                {
-                    break;
-                }
-
-                if (!IsOutLength() && next.Kind == TokenType.Comma)
-                {
-                    pos++;
-                }
-                else
-                {
-                    break;
-                }
             }
 
             return args.ToArray();
