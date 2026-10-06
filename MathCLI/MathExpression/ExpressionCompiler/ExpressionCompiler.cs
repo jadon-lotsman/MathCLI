@@ -144,10 +144,9 @@ namespace MathCLI.MathExpression.ExpressionCompiler
         {
             bool IsMinus = false;
 
-            Token tok = Tokens[pos];
-            if (tok.IsMatch(Op.Minus))
+            while (Tokens[pos].IsMatch(Op.Minus))
             {
-                IsMinus = true;
+                IsMinus = !IsMinus;
                 pos++;
             }
 

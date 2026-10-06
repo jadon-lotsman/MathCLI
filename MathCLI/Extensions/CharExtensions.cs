@@ -15,6 +15,7 @@ namespace MathCLI.Extensions
         public static bool isLetter(this char ch) => char.IsLetter(ch);
 
         public static bool IsPoint(this char ch) => ch == '.';
+        public static bool IsSlash(this char ch) => ch == '/';
         public static bool IsComma(this char ch) => ch == ',';
         public static bool IsLeftBracket(this char ch) =>  ch == '(';
         public static bool IsRightBracket(this char ch) => ch == ')';

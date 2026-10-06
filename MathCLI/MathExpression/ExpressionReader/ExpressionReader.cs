@@ -63,22 +63,40 @@ namespace MathCLI.MathExpression.ExpressionReader
 
         private static Token CaptureNumber(string expr, ref int i)
         {
-            string number = expr[i].ToString();
+            var sb = new StringBuilder();
+            sb.Append(expr[i]);
 
             bool hasSeparator = false;
 
             while (i + 1 < expr.Length)
             {
-                if (expr[i + 1].IsDigit() || ((expr[i + 1].IsPoint() || expr[i + 1] == '/') && !hasSeparator))
+                char next = expr[i + 1];
+
+                if (next.IsDigit())
                 {
-                    number += expr[++i];
-                    hasSeparator = (expr[i].IsPoint() || expr[i] == '/') || hasSeparator;
+                    sb.Append(next);
+                    i++;
+                }
+                else if ((next.IsPoint() || next.IsSlash()) && !hasSeparator)
+                {
+                    if (i + 2 < expr.Length && expr[i + 2].IsDigit())
+                    {
+                        sb.Append(next);
+                        i++;
+                        hasSeparator = true;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {
                     break;
                 }
             }
+
+            string number = sb.ToString();
 
             if (!IsValidFraction(number))
                 return Token.Unknown(i, number.Length);
