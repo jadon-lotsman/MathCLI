@@ -1,4 +1,6 @@
-﻿using MathCLI.Term.ExpressionBuilder;
+﻿using MathCLI.MathExpression.ExpressionReader;
+using MathCLI.MathExpression.ExpressionTokenReader;
+using MathCLI.Term.ExpressionBuilder;
 using MathCLI.Term.ExpressionStringReader;
 using System;
 using System.Collections.Generic;
@@ -20,10 +22,10 @@ namespace MathCLI.MathKernel
 
         public string Calc(string str)
         {
-            string[] splitted = ExpressionStringSplitter.SplitAsExpression(str);
+            ReadResult readResult = ExpressionReader.Read(str);
 
-            var buider = new ExpressionBuilder();
-            var tree = buider.GetTree(splitted);
+            var buider = new ExpressionCompiler();
+            var tree = buider.CompileDescent(readResult.Tokens);
 
             return tree.Execute(_variableContext).ToString();
         }

@@ -2,6 +2,7 @@
 using MathCLI.MathTerm;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -172,6 +173,40 @@ namespace MathCLI.MathExpression
             }
 
             return a | b;
+        }
+
+
+        public static bool TryParseFraction(string str, out Fraction? fr)
+        {
+            fr = null;
+
+            if (string.IsNullOrWhiteSpace(str))
+                return false;
+
+            if (str.Contains("/"))
+            {
+                var splitted = str.Split('/');
+
+                if (splitted.Length != 2)
+                    return false;
+
+                if (!int.TryParse(splitted[0], CultureInfo.InvariantCulture, out int numerator))
+                    return false;
+
+                if (!int.TryParse(splitted[1], CultureInfo.InvariantCulture, out int denominator))
+                    return false;
+
+                fr = new Fraction(numerator, denominator);
+            }
+            else
+            {
+                if (!double.TryParse(str, NumberStyles.Float, CultureInfo.InvariantCulture, out double number))
+                    return false;
+
+                fr = new Fraction(number);
+            }
+
+            return true;
         }
 
         public override string ToString()
