@@ -7,25 +7,18 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathExpression.Terms
 {
-    public class Multiplication : ITerm
+    public class Multiplication : BinaryTerm
     {
-        ITerm left;
-        ITerm right;
+        public Multiplication(ITerm left, ITerm right) : base(left, right) { }
 
-        public Multiplication(ITerm left, ITerm right)
+        public override Fraction Execute(VariableContext context)
         {
-            this.left = left;
-            this.right = right;
-        }
-
-        public Fraction Execute(VariableContext context)
-        {
-            return left.Execute(context) * right.Execute(context);
+            return Left.Execute(context) * Right.Execute(context);
         }
 
         public override string ToString()
         {
-            return $"{left}*{right}";
+            return $"{Left}*{Right}";
         }
     }
 }

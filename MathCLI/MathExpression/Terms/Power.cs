@@ -7,25 +7,18 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathExpression.Terms
 {
-    public class Power : ITerm
+    public class Power : BinaryTerm
     {
-        ITerm left;
-        ITerm right;
+        public Power(ITerm left, ITerm right) : base(left, right) { }
 
-        public Power(ITerm left, ITerm right)
+        public override Fraction Execute(VariableContext context)
         {
-            this.left = left;
-            this.right = right;
-        }
-
-        public Fraction Execute(VariableContext context)
-        {
-            return new Fraction(Math.Pow(left.Execute(context), right.Execute(context)));
+            return new Fraction(Math.Pow(Left.Execute(context), Right.Execute(context)));
         }
 
         public override string ToString()
         {
-            return $"pow({left}, {right})";
+            return $"pow({Left}, {Right})";
         }
     }
 }

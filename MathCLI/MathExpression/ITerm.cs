@@ -10,6 +10,7 @@ namespace MathCLI.MathExpression
     public interface ITerm
     {
         Fraction Execute(VariableContext context);
+        ITerm Substitute(VariableContext context);
         string ToString();
     }
 }

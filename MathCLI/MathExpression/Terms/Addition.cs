@@ -5,29 +5,21 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MathCLI.MathExpression.Terms
 {
-    public class Addition : ITerm
+    public class Addition : BinaryTerm
     {
-        ITerm left;
-        ITerm right;
+        public Addition(ITerm left, ITerm right) : base(left, right) { }
 
-        public Addition(ITerm left, ITerm right)
+        public override Fraction Execute(VariableContext context)
         {
-            this.left = left;
-            this.right = right;
-        }
-
-        public Fraction Execute(VariableContext context)
-        {
-            return left.Execute(context) + right.Execute(context);
+            return Left.Execute(context) + Right.Execute(context);
         }
 
         public override string ToString()
         {
-            return $"{left}+{right}";
+            return $"{Left}+{Right}";
         }
     }
 }

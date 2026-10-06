@@ -14,10 +14,10 @@ namespace MathCLI.MathExpression
         public int Numerator { get; private set; }
         public int Denominator { get; private set; }
 
-        public Fraction(int numerator, int denumerator = 1)
+        public Fraction(int numerator, int denominator = 1)
         {
             Numerator = numerator;
-            Denominator = denumerator;
+            Denominator = denominator;
         }
 
         public Fraction(double value)
@@ -39,10 +39,8 @@ namespace MathCLI.MathExpression
             Denominator = f.Denominator;
         }
 
-        public Fraction Execute(VariableContext context)
-        {
-            return this;
-        }
+        public Fraction Execute(VariableContext context) => this;
+        public ITerm Substitute(VariableContext context) => this;
 
         public static implicit operator double(Fraction value)
         {
@@ -89,9 +87,9 @@ namespace MathCLI.MathExpression
         public static Fraction operator +(Fraction a, Fraction b)
         {
             int numerator = a.Numerator * b.Denominator + b.Numerator * a.Denominator;
-            int denumerator = a.Denominator * b.Denominator;
+            int denominator = a.Denominator * b.Denominator;
 
-            return new Fraction(numerator, denumerator);
+            return new Fraction(numerator, denominator);
         }
 
         public static Fraction operator -(Fraction a, Fraction b)
@@ -102,9 +100,9 @@ namespace MathCLI.MathExpression
         public static Fraction operator *(Fraction a, Fraction b)
         {
             int numerator = a.Numerator * b.Numerator;
-            int denumerator = a.Denominator * b.Denominator;
+            int denominator = a.Denominator * b.Denominator;
 
-            return new Fraction(numerator, denumerator);
+            return new Fraction(numerator, denominator);
         }
 
         public static Fraction operator /(Fraction a, int i)
@@ -211,13 +209,10 @@ namespace MathCLI.MathExpression
         public override string ToString()
         {
             if (Denominator == 1)
-            {
                 return $"{Numerator}";
-            }
+
             else if (Denominator % 10 == 0)
-            {
                 return $"{(double)this}";
-            }
 
             return $"{Numerator}/{Denominator}";
         }

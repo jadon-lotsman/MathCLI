@@ -9,21 +9,19 @@ namespace MathCLI.MathExpression.Terms
 {
     public class Variable : ITerm
     {
-        char ch;
+        char Name;
 
-        public Variable(char ch)
+        public Variable(char name)
         {
-            this.ch = ch;
+            Name = name;
         }
 
-        public Fraction Execute(VariableContext context)
-        {
-            return context.GetVariable(ch);
-        }
+        public Fraction Execute(VariableContext context) => context.GetVariable(Name);
+        public ITerm Substitute(VariableContext context) => Execute(context);
 
         public override string ToString()
         {
-            return $"{ch}";
+            return $"{Name}";
         }
     }
 }
