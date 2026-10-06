@@ -9,8 +9,12 @@ namespace MathCLI.MathExpression
 {
     public interface ITerm
     {
+        bool IsValue { get; }
+
         Fraction Execute(VariableContext context);
+        ITerm ReduceStep(VariableContext context);
         ITerm Substitute(VariableContext context);
+
         string ToString();
     }
 }

@@ -13,6 +13,7 @@ namespace MathCLI.MathExpression
     {
         public int Numerator { get; private set; }
         public int Denominator { get; private set; }
+        public bool IsValue { get => true; }
 
         public Fraction(int numerator, int denominator = 1)
         {
@@ -40,6 +41,7 @@ namespace MathCLI.MathExpression
         }
 
         public Fraction Execute(VariableContext context) => this;
+        public ITerm ReduceStep(VariableContext context) => this;
         public ITerm Substitute(VariableContext context) => this;
 
         public static implicit operator double(Fraction value)

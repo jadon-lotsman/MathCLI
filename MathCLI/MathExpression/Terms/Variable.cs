@@ -9,7 +9,8 @@ namespace MathCLI.MathExpression.Terms
 {
     public class Variable : ITerm
     {
-        char Name;
+        private char Name;
+        public bool IsValue { get => false; }
 
         public Variable(char name)
         {
@@ -17,6 +18,7 @@ namespace MathCLI.MathExpression.Terms
         }
 
         public Fraction Execute(VariableContext context) => context.GetVariable(Name);
+        public ITerm ReduceStep(VariableContext context) => Execute(context);
         public ITerm Substitute(VariableContext context) => Execute(context);
 
         public override string ToString()
