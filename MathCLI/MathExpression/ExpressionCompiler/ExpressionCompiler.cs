@@ -35,12 +35,12 @@ namespace MathCLI.MathExpression.ExpressionCompiler
             {
                 Token tok = Tokens[pos];
 
-                if (tok.IsAnyOperator(Op.Plus, Op.Minus))
+                if (tok.IsAnyMatch(Op.Plus, Op.Minus))
                 {
                     pos++;
                     ITerm b = GetTerm();
 
-                    if (tok.IsOperator(Op.Plus))
+                    if (tok.IsMatch(Op.Plus))
                         a = new Addition(a, b);
                     else
                         a = new Subtraction(a, b);
@@ -57,18 +57,18 @@ namespace MathCLI.MathExpression.ExpressionCompiler
         // T -> A*/ ... */A
         private ITerm GetTerm()
         {
-            ITerm a = GetAbc();
+            ITerm a = GetPower();
 
             while (!IsOutLength())
             {
                 Token tok = Tokens[pos];
 
-                if (tok.IsAnyOperator(Op.Multiply, Op.Divide))
+                if (tok.IsAnyMatch(Op.Multiply, Op.Divide))
                 {
                     pos++;
-                    ITerm b = GetAbc();
+                    ITerm b = GetPower();
 
-                    if (tok.IsOperator(Op.Multiply))
+                    if (tok.IsMatch(Op.Multiply))
                         a = new Multiplication(a, b);
                     else
                         a = new Division(a, b);
@@ -82,7 +82,34 @@ namespace MathCLI.MathExpression.ExpressionCompiler
             return a;
         }
 
-        // A -> abc(E,E ... ,E)
+        // P -> abc(E, E ... ,E) ^ P
+        private ITerm GetPower()
+        {
+            ITerm a = GetAbc();
+
+            while (!IsOutLength())
+            {
+                Token tok = Tokens[pos];
+
+                if (tok.IsAnyMatch(Op.Power))
+                {
+                    pos++;
+                    ITerm b = GetPower();
+
+                    if (tok.IsMatch(Op.Power))
+                        a = new Power(a, b);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return a;
+        }
+
+
+        // P -> abc(E, E ... ,E)
         private ITerm GetAbc()
         {
             // Get token
@@ -105,7 +132,7 @@ namespace MathCLI.MathExpression.ExpressionCompiler
             pos++;
 
 
-            if (current.IsFunction(Op.Power))
+            if (current.IsMatch(Op.Pow))
                 return new Power(args[0], args[1]);
 
             throw new Exception("Not found function");
@@ -117,7 +144,7 @@ namespace MathCLI.MathExpression.ExpressionCompiler
             bool IsMinus = false;
 
             Token tok = Tokens[pos];
-            if (tok.IsOperator(Op.Minus))
+            if (tok.IsMatch(Op.Minus))
             {
                 IsMinus = true;
                 pos++;
