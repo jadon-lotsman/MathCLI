@@ -1,12 +1,11 @@
-﻿using MathCLI.MathExpression.ExpressionReader;
-using MathCLI.MathExpression.ExpressionReader.Enums;
+﻿using MathCLI.MathExpression.ExpressionReader.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathExpression.ExpressionTokenReader
+namespace MathCLI.MathExpression.ExpressionReader
 {
     public class ReadResult
     {

@@ -1,7 +1,5 @@
 ﻿using MathCLI.Extensions;
 using MathCLI.MathExpression;
-using MathCLI.MathExpression.ExpressionReader;
-using MathCLI.MathExpression.ExpressionTokenReader;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace MathCLI.Term.ExpressionStringReader
+namespace MathCLI.MathExpression.ExpressionReader
 {
     public static class ExpressionReader
     {

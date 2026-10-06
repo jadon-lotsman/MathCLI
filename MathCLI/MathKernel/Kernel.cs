@@ -1,7 +1,5 @@
-﻿using MathCLI.MathExpression.ExpressionReader;
-using MathCLI.MathExpression.ExpressionTokenReader;
-using MathCLI.Term.ExpressionBuilder;
-using MathCLI.Term.ExpressionStringReader;
+﻿using MathCLI.MathExpression.ExpressionCompiler;
+using MathCLI.MathExpression.ExpressionReader;
 using System;
 using System.Collections.Generic;
 using System.Linq;

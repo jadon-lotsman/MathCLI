@@ -1,12 +1,11 @@
-﻿using MathCLI.MathExpression;
-using MathCLI.MathKernel;
+﻿using MathCLI.MathKernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathTerm
+namespace MathCLI.MathExpression
 {
     public interface ITerm
     {

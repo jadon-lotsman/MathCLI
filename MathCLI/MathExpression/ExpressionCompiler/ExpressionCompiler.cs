@@ -3,7 +3,6 @@ using MathCLI.MathExpression;
 using MathCLI.MathExpression.ExpressionReader;
 using MathCLI.MathExpression.ExpressionReader.Enums;
 using MathCLI.MathExpression.Terms;
-using MathCLI.MathTerm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.Term.ExpressionBuilder
+namespace MathCLI.MathExpression.ExpressionCompiler
 {
     public class ExpressionCompiler
     {

@@ -1,5 +1,4 @@
 ﻿using MathCLI.MathKernel;
-using MathCLI.MathTerm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,23 +7,25 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathExpression.Terms
 {
-    public class Variable : ITerm
+    public class Multiplication : ITerm
     {
-        char ch;
+        ITerm left;
+        ITerm right;
 
-        public Variable(char ch)
+        public Multiplication(ITerm left, ITerm right)
         {
-            this.ch = ch;
+            this.left = left;
+            this.right = right;
         }
 
         public Fraction Execute(VariableContext context)
         {
-            return context.GetVariable(ch);
+            return left.Execute(context) * right.Execute(context);
         }
 
         public override string ToString()
         {
-            return $"{ch}";
+            return $"{left}*{right}";
         }
     }
 }
