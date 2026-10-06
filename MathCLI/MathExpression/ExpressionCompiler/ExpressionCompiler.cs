@@ -85,61 +85,30 @@ namespace MathCLI.MathExpression.ExpressionCompiler
         // A -> abc(E,E ... ,E)
         private ITerm GetAbc()
         {
-            Token tok = Tokens[pos];
-
-            if (Op.IsFunction(tok.Value))
-            {
-                pos++;
-                Token openBracket = Tokens[pos];
-
-                if (openBracket.Kind == TokenType.OpenBracket)
-                {
-                    pos++;
-                    ITerm[] args = GetArgs();
-
-                    Token closingBracket;
-                    if (!IsOutLength())
-                    {
-                        closingBracket = Tokens[pos];
-                    }
-                    else
-                    {
-                        throw new Exception("No end expression");
-                    }
-
-                    if (closingBracket.Kind == TokenType.CloseBracket)
-                    {
-                        pos++;
-
-                        //if (func == "pow")
-                        //{
-                        //    return new Power(args[0], args[1]);
-                        //}
-                        //else if (func == "sqrt")
-                        //{
-                        //    return new SquareRoot(args[0]);
-                        //}
-                        //else if (func == "max")
-                        //{
-                        //    return new Maximal(args);
-                        //}
-                        //else if (func == "min")
-                        //{
-                        //    return new Minimal(args);
-                        //}
-                    }
-                    else
-                    {
-                        throw new Exception("End is not a bracket");
-                    }
-                }
-
-                throw new Exception("Need bracket after function");
-            }
-            else
-            {
+            // Get token
+            Token current = Tokens[pos];
+            if (current.Kind != TokenType.Function)
                 return GetFactor();
-            }
+
+            // Move to open bracket
+            Token open = Tokens[++pos];
+            if (open.Kind != TokenType.OpenBracket)
+                throw new Exception("Need bracket after function");
+
+            pos++;
+            ITerm[] args = GetArgs();
+
+            Token? close = !IsOutLength() ? Tokens[pos] : null;
+            if (!close.HasValue || close.Value.Kind != TokenType.CloseBracket)
+                throw new Exception("Need close bracket");
+
+            pos++;
+
+
+            if (current.IsFunction(Op.Power))
+                return new Power(args[0], args[1]);
+
+            throw new Exception("Not found function");
         }
 
         // F -> N | (E)

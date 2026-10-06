@@ -12,6 +12,7 @@ namespace MathCLI.MathExpression
         public const string Minus = "-";
         public const string Multiply = "*";
         public const string Divide = "/";
+        public const string Power = "pow";
         //public const string Sin = "sin";
         //public const string Cos = "cos";
         //public const string Tg = "tg";
@@ -26,7 +27,7 @@ namespace MathCLI.MathExpression
 
         private static readonly HashSet<string> Functions = new()
         {
-            //Sin, Cos, Tg, Tan, Ctg, Cot
+            Power //Sin, Cos, Tg, Tan, Ctg, Cot
         };
 
         public static bool IsOperator(string str)           => Operators.Contains(str);
