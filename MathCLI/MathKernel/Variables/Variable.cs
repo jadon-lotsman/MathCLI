@@ -9,6 +9,7 @@ namespace MathCLI.MathKernel.Variables
     public class Variable : ITerm
     {
         private char Name;
+        public int Precedence { get => int.MaxValue; }
         public bool IsValue { get => false; }
 
         public Variable(char name)

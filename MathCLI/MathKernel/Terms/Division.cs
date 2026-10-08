@@ -9,6 +9,7 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Division : BinaryTerm
     {
+        public override int Precedence { get => 1; }
         public Division(ITerm left, ITerm right) : base(left, ':', right) { }
 
         public override Fraction Execute(VariableContext context)

@@ -13,6 +13,7 @@ namespace MathCLI.MathKernel
     {
         public int Numerator { get; private set; }
         public int Denominator { get; private set; }
+        public int Precedence { get => Numerator < 0 ? int.MinValue : int.MaxValue; }
         public bool IsValue { get => true; }
 
         public Fraction(int numerator, int denominator = 1)

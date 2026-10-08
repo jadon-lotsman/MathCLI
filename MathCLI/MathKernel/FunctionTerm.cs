@@ -14,6 +14,7 @@ namespace MathCLI.MathKernel
         protected ITerm[] Args;
         public int MinArgs { get; }
         public int? MaxArgs { get; }
+        public int Precedence { get => int.MaxValue; }
         public bool IsValue { get => false; }
 
 

@@ -12,6 +12,7 @@ namespace MathCLI.MathKernel
         protected ITerm Left;
         protected ITerm Right;
         protected char Symbol { get; }
+        public abstract int Precedence { get; }
         public bool IsValue { get => false; }
 
         public BinaryTerm(ITerm left, char symbol, ITerm right)
@@ -20,7 +21,7 @@ namespace MathCLI.MathKernel
             Right = right;
             Symbol = symbol;
         }
-        
+
 
         public abstract Fraction Execute(VariableContext context);
 
@@ -49,7 +50,20 @@ namespace MathCLI.MathKernel
 
         public override string ToString()
         {
-            return $"{Left}{Symbol}{Right}";
+            string left = WrapIfNeeded(Left);
+            string right = WrapIfNeeded(Right);
+            return $"{left}{Symbol}{right}";
+        }
+
+        private string WrapIfNeeded(ITerm child)
+        {
+            if (child.Precedence < Precedence)
+                return $"({child})";
+
+            if (child.Precedence > Precedence)
+                return child.ToString();
+
+            return  $"({child})";
         }
     }
 }

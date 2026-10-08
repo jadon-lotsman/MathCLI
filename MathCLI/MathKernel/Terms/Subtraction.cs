@@ -9,6 +9,7 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Subtraction : BinaryTerm
     {
+        public override int Precedence { get => 0; }
         public Subtraction(ITerm left, ITerm right) : base(left, '-', right) { }
 
         public override Fraction Execute(VariableContext context)

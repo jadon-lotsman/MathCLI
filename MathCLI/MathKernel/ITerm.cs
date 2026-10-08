@@ -9,6 +9,7 @@ namespace MathCLI.MathKernel
 {
     public interface ITerm
     {
+        int Precedence { get; }
         bool IsValue { get; }
 
         Fraction Execute(VariableContext context);

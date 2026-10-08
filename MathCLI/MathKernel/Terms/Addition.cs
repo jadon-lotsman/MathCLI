@@ -9,6 +9,7 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Addition : BinaryTerm
     {
+        public override int Precedence { get => 0; }
         public Addition(ITerm left, ITerm right) : base(left, '+', right) { }
 
         public override Fraction Execute(VariableContext context)
