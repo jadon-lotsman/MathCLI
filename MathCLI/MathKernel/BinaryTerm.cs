@@ -11,16 +11,18 @@ namespace MathCLI.MathKernel
     {
         protected ITerm Left;
         protected ITerm Right;
+        protected char Symbol { get; }
         public bool IsValue { get => false; }
 
-        public BinaryTerm(ITerm left, ITerm right)
+        public BinaryTerm(ITerm left, char symbol, ITerm right)
         {
             Left = left;
             Right = right;
+            Symbol = symbol;
         }
+        
 
         public abstract Fraction Execute(VariableContext context);
-
 
         public ITerm ReduceStep(VariableContext context)
         {
@@ -43,6 +45,11 @@ namespace MathCLI.MathKernel
             Right = Right.Substitute(context);
 
             return this;
+        }
+
+        public override string ToString()
+        {
+            return $"{Left}{Symbol}{Right}";
         }
     }
 }

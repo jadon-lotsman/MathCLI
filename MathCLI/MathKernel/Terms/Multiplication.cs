@@ -9,16 +9,11 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Multiplication : BinaryTerm
     {
-        public Multiplication(ITerm left, ITerm right) : base(left, right) { }
+        public Multiplication(ITerm left, ITerm right) : base(left, '×', right) { }
 
         public override Fraction Execute(VariableContext context)
         {
             return Left.Execute(context) * Right.Execute(context);
-        }
-
-        public override string ToString()
-        {
-            return $"{Left}*{Right}";
         }
     }
 }

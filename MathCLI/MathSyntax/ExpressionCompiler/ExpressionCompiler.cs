@@ -98,7 +98,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
                     ITerm b = GetPower();
 
                     if (tok.IsMatch(Op.Power))
-                        a = new Power(a, b);
+                        a = new Power([a, b]);
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
 
             // Match functions
             if (abc.IsMatch(Op.Pow))
-                return new Power(args[0], args[1]);
+                return new Power(args);
 
             throw new Exception("Not found function");
         }

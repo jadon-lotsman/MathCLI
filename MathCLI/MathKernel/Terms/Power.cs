@@ -7,18 +7,13 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Terms
 {
-    public class Power : BinaryTerm
+    public class Power : FunctionTerm
     {
-        public Power(ITerm left, ITerm right) : base(left, right) { }
+        public Power(ITerm[] args) : base("pow", args, 2) { }
 
-        public override Fraction Execute(VariableContext context)
+        public override Fraction ExecuteFunction(VariableContext context)
         {
-            return new Fraction(Math.Pow(Left.Execute(context), Right.Execute(context)));
-        }
-
-        public override string ToString()
-        {
-            return $"pow({Left}, {Right})";
+            return new Fraction(Math.Pow(Args[0].Execute(context), Args[1].Execute(context)));
         }
     }
 }
