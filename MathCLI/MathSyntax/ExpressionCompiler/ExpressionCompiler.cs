@@ -1,16 +1,17 @@
 ﻿using MathCLI.Extensions;
-using MathCLI.MathExpression;
-using MathCLI.MathExpression.ExpressionReader;
-using MathCLI.MathExpression.ExpressionReader.Enums;
-using MathCLI.MathExpression.Terms;
+using MathCLI.MathSyntax.ExpressionReader;
+using MathCLI.MathSyntax.ExpressionReader.Enums;
+using MathCLI.MathKernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using MathCLI.MathKernel.Terms;
+using MathCLI.MathKernel.Variables;
 
-namespace MathCLI.MathExpression.ExpressionCompiler
+namespace MathCLI.MathSyntax.ExpressionCompiler
 {
     public class ExpressionCompiler
     {

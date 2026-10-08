@@ -1,9 +1,9 @@
-﻿using MathCLI.MathExpression.ExpressionReader.Enums;
+﻿using MathCLI.MathSyntax.ExpressionReader.Enums;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathExpression.ExpressionReader
+namespace MathCLI.MathSyntax.ExpressionReader
 {
     public readonly record struct Token(TokenType Kind, int Position, int Length, string? Value = null)
     {

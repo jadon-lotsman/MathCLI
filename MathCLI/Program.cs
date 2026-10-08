@@ -1,4 +1,7 @@
-﻿using MathCLI.MathKernel;
+﻿using MathCLI.MathKernel.Variables;
+using MathCLI.MathSolver;
+using MathCLI.MathSyntax.ExpressionReader;
+using MathCLI.MathSyntax.ExpressionCompiler;
 using System.CommandLine;
 
 namespace MathCLI
@@ -28,6 +31,7 @@ namespace MathCLI
 
             rootCommand.SetAction(parseResult =>
             {
+                var solver = new ExpressionSolver(new ExpressionCompiler(), new ExpressionReader());
                 var variables = new VariableContext();
 
                 string expression = parseResult.GetValue(expressionArgument);
@@ -47,8 +51,7 @@ namespace MathCLI
                 }
 
 
-                var kernel = new Kernel(variables);
-                string result = kernel.Calc(expression);
+                var result = solver.Solve(expression, variables);
                 Console.WriteLine(result);
 
                 return 0;

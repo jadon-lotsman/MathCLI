@@ -1,4 +1,4 @@
-﻿using MathCLI.MathKernel;
+﻿using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathExpression
+namespace MathCLI.MathKernel
 {
     public class Fraction : ITerm
     {

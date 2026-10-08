@@ -1,5 +1,5 @@
 ﻿using MathCLI.Extensions;
-using MathCLI.MathExpression;
+using MathCLI.MathSyntax;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,11 +9,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace MathCLI.MathExpression.ExpressionReader
+namespace MathCLI.MathSyntax.ExpressionReader
 {
-    public static class ExpressionReader
+    public class ExpressionReader
     {
-        public static ReadResult Read(string source)
+        public ReadResult Read(string source)
         {
             List<Token> tokens = new List<Token>();
 
@@ -61,7 +61,7 @@ namespace MathCLI.MathExpression.ExpressionReader
             return new ReadResult(source, tokens);
         }
 
-        private static Token CaptureNumber(string expr, ref int i)
+        private Token CaptureNumber(string expr, ref int i)
         {
             var sb = new StringBuilder();
             sb.Append(expr[i]);
@@ -104,12 +104,12 @@ namespace MathCLI.MathExpression.ExpressionReader
             return Token.Number(number, i);
         }
 
-        private static bool IsValidFraction(string str)
+        private bool IsValidFraction(string str)
         {
             return Regex.IsMatch(str, @"^[0-9]+(?:[./][0-9]+)?$");
         }
 
-        private static Token CaptureFunctionOrVariable(string expr, ref int i)
+        private Token CaptureFunctionOrVariable(string expr, ref int i)
         {
             string str = expr[i].ToString();
 

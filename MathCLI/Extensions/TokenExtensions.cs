@@ -1,5 +1,5 @@
-﻿using MathCLI.MathExpression.ExpressionReader;
-using MathCLI.MathExpression.ExpressionReader.Enums;
+﻿using MathCLI.MathSyntax.ExpressionReader;
+using MathCLI.MathSyntax.ExpressionReader.Enums;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;

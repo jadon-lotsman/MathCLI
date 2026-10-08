@@ -1,6 +1,6 @@
-using MathCLI.MathExpression.ExpressionCompiler;
-using MathCLI.MathExpression.ExpressionReader;
-using MathCLI.MathKernel;
+using MathCLI.MathKernel.Variables;
+using MathCLI.MathSyntax.ExpressionCompiler;
+using MathCLI.MathSyntax.ExpressionReader;
 
 namespace MathCLI.Tests
 {
@@ -54,13 +54,14 @@ namespace MathCLI.Tests
         [MemberData(nameof(MathCases))]
         public void Parse_And_Evaluate_ReturnsExpected(string expression, double expected)
         {
-            var readed = ExpressionReader.Read(expression);
-            Assert.Empty(readed.UnknownTokens);
-
-            var variables = new VariableContext();
+            var reader = new ExpressionReader();
+            var context = new VariableContext();
             var compiler = new ExpressionCompiler();
-            var actual = compiler.CompileDescent(readed.Tokens).Execute(variables);
 
+            var read = reader.Read(expression);
+            Assert.Empty(read.UnknownTokens);
+
+            var actual = compiler.CompileDescent(read.Tokens).Execute(context);
             Assert.Equal(expected, actual, precision: 5);
         }
     }

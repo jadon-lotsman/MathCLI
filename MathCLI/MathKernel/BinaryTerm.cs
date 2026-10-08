@@ -1,12 +1,11 @@
-﻿using MathCLI.MathExpression.Terms;
-using MathCLI.MathKernel;
+﻿using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathExpression
+namespace MathCLI.MathKernel
 {
     public abstract class BinaryTerm : ITerm
     {

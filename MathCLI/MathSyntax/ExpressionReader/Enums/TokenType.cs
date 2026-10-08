@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathExpression.ExpressionReader.Enums
+namespace MathCLI.MathSyntax.ExpressionReader.Enums
 {
     public enum TokenType
     {

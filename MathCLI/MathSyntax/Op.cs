@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathExpression
+namespace MathCLI.MathSyntax
 {
     public static class Op
     {
