@@ -22,23 +22,30 @@ namespace MathCLI
                 Arity = ArgumentArity.ZeroOrMore
             };
 
+            var stepsOption = new Option<bool>("--steps", "-s")
+            {
+                Description = "Detailed solution",
+                Arity = ArgumentArity.ZeroOrOne
+            };
+
             RootCommand rootCommand = new RootCommand()
             {
                 expressionArgument,
-                variablesOption
+                variablesOption,
+                stepsOption
             };
 
 
-            rootCommand.SetAction(parseResult =>
+            rootCommand.SetAction(p =>
             {
-                var solver = new ExpressionSolver(new ExpressionCompiler(), new ExpressionReader());
-                var variables = new VariableContext();
+                var solver  = new ExpressionSolver(new ExpressionCompiler(), new ExpressionReader());
+                var context = new VariableContext();
 
-                string expression = parseResult.GetValue(expressionArgument);
-                string[] variablePairs = parseResult.GetValue(variablesOption) ?? Array.Empty<string>();
+                var expression  = p.GetValue(expressionArgument);
+                var variables   = p.GetValue(variablesOption) ?? Array.Empty<string>();
+                var step        = p.GetValue(stepsOption) ? SolverMode.StepByStep : SolverMode.Value;
 
-                var parameters = new Dictionary<string, object>();
-                foreach (var pair in variablePairs)
+                foreach (var pair in variables)
                 {
                     var parts = pair.Split('=', 2);
                     if (parts.Length != 2)
@@ -47,12 +54,15 @@ namespace MathCLI
                         return 2;
                     }
 
-                    variables.SetVariable(parts[0][0], double.Parse(parts[1].Trim()));
+                    context.SetVariable(parts[0][0], double.Parse(parts[1].Trim()));
                 }
 
 
-                var result = solver.Solve(expression, variables);
-                Console.WriteLine(result);
+                var result = solver.Solve(expression, context, step);
+                foreach(var res in result)
+                {
+                    Console.WriteLine(res);
+                }
 
                 return 0;
             });

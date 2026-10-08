@@ -23,12 +23,22 @@ namespace MathCLI.MathSolver
         }
 
 
-        public Fraction Solve(string expression, VariableContext context)
+        public string[] Solve(string expression, VariableContext context, SolverMode mode=SolverMode.Value)
         {
             ReadResult read = _reader.Read(expression);
             ITerm term = _compiler.CompileDescent(read.Tokens);
 
-            return term.Execute(context);
+            if (mode == SolverMode.Value)
+                return [term.Execute(context).ToString()];
+
+            var steps = new List<string>() { term.ToString() };
+            while(!term.IsValue)
+            {
+                term = term.ReduceStep(context);
+                steps.Add(term.ToString());
+            }
+
+            return steps.ToArray();
         }
     }
 }
