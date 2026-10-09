@@ -9,8 +9,8 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Multiplication : BinaryTerm
     {
-        public override int Precedence { get => 1; }
-        public Multiplication(ITerm left, ITerm right) : base(left, '×', right) { }
+        public override int Precedence => 1;
+        public Multiplication(ITerm left, ITerm right) : base(left, '*', right) { }
 
         public override Fraction Execute(VariableContext context)
         {

@@ -58,7 +58,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         // T -> A*/ ... */A
         private ITerm GetTerm()
         {
-            ITerm a = GetPower();
+            ITerm a = GetUnary();
 
             while (!IsOutLength())
             {
@@ -67,7 +67,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
                 if (tok.IsAnyMatch(Op.Multiply, Op.Divide))
                 {
                     pos++;
-                    ITerm b = GetPower();
+                    ITerm b = GetUnary();
 
                     if (tok.IsMatch(Op.Multiply))
                         a = new Multiplication(a, b);
@@ -83,32 +83,32 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
             return a;
         }
 
+        //
+        private ITerm GetUnary()
+        {
+            if (!IsOutLength() && Tokens[pos].IsMatch(Op.Minus))
+            {
+                pos++;
+                return new NegateTerm(GetUnary());
+            }
+
+            return GetPower();
+        }
+
         // P -> abc(E, E ... ,E) ^ P
         private ITerm GetPower()
         {
             ITerm a = GetAbc();
 
-            while (!IsOutLength())
+            if (!IsOutLength() && Tokens[pos].IsMatch(Op.Power))
             {
-                Token tok = Tokens[pos];
-
-                if (tok.IsAnyMatch(Op.Power))
-                {
-                    pos++;
-                    ITerm b = GetPower();
-
-                    if (tok.IsMatch(Op.Power))
-                        a = new Power([a, b]);
-                }
-                else
-                {
-                    break;
-                }
+                pos++;
+                var b = GetUnary();
+                return new Power([a, b]);
             }
 
             return a;
         }
-
 
         // P -> abc(E, E ... ,E)
         private ITerm GetAbc()
@@ -143,21 +143,12 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         // F -> N | (E)
         private ITerm GetFactor()
         {
-            bool IsMinus = false;
-
-            while (Tokens[pos].IsMatch(Op.Minus))
-            {
-                IsMinus = !IsMinus;
-                pos++;
-            }
-
-            Token next = Tokens[pos];
+            Token factor = Tokens[pos];
             ITerm result;
 
-            if (next.Kind == TokenType.OpenBracket)
+            if (factor.Kind == TokenType.OpenBracket)
             {
                 pos++;
-
                 result = GetExpression();
                 Token closingBracket;
                 if (!IsOutLength())
@@ -170,26 +161,23 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
                 }
 
                 if (IsOutLength() || closingBracket.Kind != TokenType.CloseBracket)
-                {
                     throw new Exception("End is not a bracket");
-                }
+
+                pos++;
             }
-            else if (next.Kind == TokenType.Variable)
+            else if (factor.Kind == TokenType.Variable)
             {
-                result = new Variable(next.Value[0]);
+                result = new Variable(factor.Value[0]);
+                pos++;
             }
             else
             {
-                if (!Fraction.TryParseFraction(next.Value, out var fraction))
+                if (!Fraction.TryParseFraction(factor.Value, out var fraction))
                     throw new Exception("Invalid fraction format");
 
                 result = fraction;
+                pos++;
             }
-
-            pos++;
-
-            if (IsMinus)
-                return new Multiplication(result, new Fraction(-1));
 
             return result;
         }

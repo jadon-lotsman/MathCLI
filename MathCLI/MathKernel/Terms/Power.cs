@@ -13,7 +13,7 @@ namespace MathCLI.MathKernel.Terms
 
         public override Fraction ExecuteFunction(VariableContext context)
         {
-            return new Fraction(Math.Pow(Args[0].Execute(context), Args[1].Execute(context)));
+            return Args[0].Execute(context).Pow((int)Args[1].Execute(context));
         }
     }
 }

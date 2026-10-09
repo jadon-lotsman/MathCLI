@@ -55,15 +55,15 @@ namespace MathCLI.MathKernel
             return $"{left}{Symbol}{right}";
         }
 
-        private string WrapIfNeeded(ITerm child)
+        private string WrapIfNeeded(ITerm term)
         {
-            if (child.Precedence < Precedence)
-                return $"({child})";
+            if (term.Precedence < Precedence)
+                return $"({term})";
 
-            if (child.Precedence > Precedence)
-                return child.ToString();
+            if (term.Precedence > Precedence)
+                return term.ToString();
 
-            return  $"({child})";
+            return  $"({term})";
         }
     }
 }
