@@ -11,22 +11,22 @@ namespace MathCLI.MathKernel
 {
     public partial class Fraction : ITerm
     {
-        public int Numerator { get; private set; }
-        public int Denominator { get; private set; }
+        public long Numerator { get; private set; }
+        public long Denominator { get; private set; }
         public int Precedence => int.MaxValue;
         public bool IsValue => true;
 
-        public Fraction(int numerator, int denominator)
+        public Fraction(long numerator, long denominator)
         {
-            Numerator = numerator;
-            Denominator = denominator;
-
-            if (Denominator == 0)
+            if (denominator == 0)
                 throw new DivideByZeroException();
+
+            Numerator   = numerator;
+            Denominator = denominator;
 
             if (Denominator < 0)
             {
-                Numerator = -Numerator;
+                Numerator   = -Numerator;
                 Denominator = -Denominator;
             }
         }
@@ -76,6 +76,7 @@ namespace MathCLI.MathKernel
                 num *= Numerator;
                 den *= Denominator;
             }
+
             return new Fraction((int)num, (int)den).GetReduced();
         }
 
@@ -84,7 +85,7 @@ namespace MathCLI.MathKernel
             if (Numerator == 0)
                 return new Fraction(0, 1);
 
-            int gcd = FindGCD(Numerator, Denominator);
+            var gcd = FindGCD(Numerator, Denominator);
             return new Fraction(Numerator / gcd, Denominator / gcd);
         }
 
@@ -96,7 +97,7 @@ namespace MathCLI.MathKernel
             return new Fraction(Denominator, Numerator);
         }
 
-        public static int FindGCD(int a, int b)
+        public static long FindGCD(long a, long b)
         {
             a = Math.Abs(a);
             b = Math.Abs(b);
@@ -112,14 +113,15 @@ namespace MathCLI.MathKernel
             return a | b;
         }
 
-        public static bool TryParseFraction(string str, out Fraction? fr)
+        public static bool TryParseFraction(string? str, out Fraction? fraction)
         {
-            fr = null;
+            fraction = null;
 
             if (string.IsNullOrWhiteSpace(str))
                 return false;
 
-            if (str.Contains("/"))
+            str = str.Trim();
+            if (str.Contains('/'))
             {
                 var splitted = str.Split('/');
 
@@ -132,14 +134,17 @@ namespace MathCLI.MathKernel
                 if (!int.TryParse(splitted[1], CultureInfo.InvariantCulture, out int denominator))
                     return false;
 
-                fr = new Fraction(numerator, denominator);
+                if (denominator == 0)
+                    return false;
+
+                fraction = new Fraction(numerator, denominator);
             }
             else
             {
                 if (!double.TryParse(str, NumberStyles.Float, CultureInfo.InvariantCulture, out double number))
                     return false;
 
-                fr = new Fraction(number);
+                fraction = new Fraction(number);
             }
 
             return true;

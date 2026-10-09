@@ -9,63 +9,37 @@ namespace MathCLI.MathKernel
     public partial class Fraction : ITerm
     {
         public static implicit operator double(Fraction value)  => (double)value.Numerator / value.Denominator;
-        public static explicit operator int(Fraction value)     => value.Numerator / value.Denominator;
+        public static explicit operator long(Fraction value)    => value.Numerator / value.Denominator;
 
 
-        public static bool operator ==(Fraction a, Fraction b)  => a.Denominator * b.Numerator == b.Denominator * a.Numerator;
-        public static bool operator !=(Fraction a, Fraction b)  => !(a == b);
-        public static bool operator >(Fraction a, Fraction b)   => a - b > 0;
-        public static bool operator <(Fraction a, Fraction b)   => a - b < 0;
+        public bool Equals(Fraction other) =>
+            Numerator * other.Denominator == other.Numerator * Denominator;
+        public int CompareTo(Fraction other) =>
+            (Numerator * other.Denominator).CompareTo(other.Numerator * Denominator);
+
+        public static bool operator ==(Fraction a, Fraction b)  => a.Equals(b);
+        public static bool operator !=(Fraction a, Fraction b)  => !a.Equals(b);
+        public static bool operator >(Fraction a, Fraction b)   => a.CompareTo(b) > 0;
+        public static bool operator <(Fraction a, Fraction b)   => a.CompareTo(b) < 0;
 
 
-
-        public static Fraction operator +(Fraction a, Fraction b)
-        {
-            int numerator = a.Numerator * b.Denominator + b.Numerator * a.Denominator;
-            int denominator = a.Denominator * b.Denominator;
-
-            return new Fraction(numerator, denominator);
-        }
-
-        public static Fraction operator -(Fraction a, Fraction b)
-        {
-            return a + (-b);
-        }
-
-        public static Fraction operator +(Fraction f) => f;
-        public static Fraction operator -(Fraction f) => new Fraction(-f.Numerator, f.Denominator);
+        public static Fraction operator +(Fraction f) =>
+            new(f.Numerator, f.Denominator);
+        public static Fraction operator -(Fraction f) =>
+            new(-f.Numerator, f.Denominator);
+        public static Fraction operator +(Fraction a, Fraction b) =>
+            new(a.Numerator * b.Denominator + b.Numerator * a.Denominator, a.Denominator * b.Denominator);
+        public static Fraction operator -(Fraction a, Fraction b) =>
+            new(a.Numerator * b.Denominator - b.Numerator * a.Denominator, a.Denominator * b.Denominator);
 
 
-
-        public static Fraction operator *(Fraction a, Fraction b)
-        {
-            int numerator = a.Numerator * b.Numerator;
-            int denominator = a.Denominator * b.Denominator;
-
-            return new Fraction(numerator, denominator);
-        }
-
-        public static Fraction operator *(Fraction a, int i)
-        {
-            int numerator = a.Numerator * i;
-            int denominator = a.Denominator;
-
-            return new Fraction(numerator, denominator);
-        }
-
-        public static Fraction operator /(Fraction a, int i)
-        {
-            a.Denominator *= i;
-
-            return a;
-        }
-
-        public static Fraction operator /(Fraction a, Fraction b)
-        {
-            if (b.Denominator == 1)
-                return a / b.Numerator;
-
-            return a * b.GetReciprocal();
-        }
+        public static Fraction operator *(Fraction a, long i) =>
+            new(a.Numerator * i, a.Denominator);
+        public static Fraction operator /(Fraction a, long i) =>
+            new(a.Numerator, a.Denominator * i);
+        public static Fraction operator *(Fraction a, Fraction b) =>
+            new(a.Numerator * b.Numerator, a.Denominator * b.Denominator);
+        public static Fraction operator /(Fraction a, Fraction b) =>
+            b.Denominator == 1 ? a / b.Numerator : a * b.GetReciprocal();
     }
 }
