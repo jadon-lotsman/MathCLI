@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel
 {
-    public partial class Fraction : ITerm
+    public partial class Fraction : ITerm, IEquatable<Fraction>
     {
         public long Numerator { get; private set; }
         public long Denominator { get; private set; }
@@ -77,17 +77,35 @@ namespace MathCLI.MathKernel
                 den *= Denominator;
             }
 
-            return new Fraction((int)num, (int)den).GetReduced();
+            return new Fraction((int)num, (int)den);
         }
 
-        public Fraction GetReduced()
+        public bool TryGetReduced(out Fraction fraction)
         {
             if (Numerator == 0)
-                return new Fraction(0, 1);
+            {
+                if (Denominator == 1)
+                {
+                    fraction = this;
+                    return false;
+                }
+
+                fraction = new Fraction(0, 1);
+                return true;
+            }
 
             var gcd = FindGCD(Numerator, Denominator);
-            return new Fraction(Numerator / gcd, Denominator / gcd);
+            if (gcd <= 1)
+            {
+                fraction = this;
+                return false;
+            }
+
+            fraction = new Fraction(Numerator / gcd, Denominator / gcd);
+            return true;
         }
+
+        public Fraction GetReduced() => TryGetReduced(out var fraction) ? fraction : this;
 
         public Fraction GetReciprocal()
         {

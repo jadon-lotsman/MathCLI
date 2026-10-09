@@ -29,7 +29,7 @@ namespace MathCLI.MathSolver
             ITerm term = _compiler.CompileDescent(read.Tokens);
 
             if (mode == SolverMode.Value)
-                return [term.Execute(context).ToString()];
+                return [term.Execute(context).GetReduced().ToString()];
 
             var steps = new List<string>() { term.ToString() };
             while(!term.IsValue)
@@ -37,6 +37,9 @@ namespace MathCLI.MathSolver
                 term = term.ReduceStep(context);
                 steps.Add(term.ToString());
             }
+
+            if (term.Execute(context).TryGetReduced(out var reduced))
+                steps.Add(reduced.ToString());
 
             return steps.ToArray();
         }
