@@ -9,21 +9,40 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel
 {
-    public class Fraction : ITerm
+    public partial class Fraction : ITerm
     {
         public int Numerator { get; private set; }
         public int Denominator { get; private set; }
-        public int Precedence { get => Numerator < 0 ? int.MinValue : int.MaxValue; }
-        public bool IsValue { get => true; }
+        public int Precedence => int.MaxValue;
+        public bool IsValue => true;
 
-        public Fraction(int numerator, int denominator = 1)
+        public Fraction(int numerator, int denominator)
         {
             Numerator = numerator;
             Denominator = denominator;
+
+            if (Denominator == 0)
+                throw new DivideByZeroException();
+
+            if (Denominator < 0)
+            {
+                Numerator = -Numerator;
+                Denominator = -Denominator;
+            }
         }
 
         public Fraction(double value)
         {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                throw new ArgumentException("Value must be finite", nameof(value));
+
+            if (value == 0.0)
+            {
+                Numerator = 0;
+                Denominator = 1;
+                return;
+            }
+
             int precision = (int)Math.Log10(int.MaxValue) - 1;
             int busy = (int)Math.Log10(value) + 1;
 
@@ -36,7 +55,7 @@ namespace MathCLI.MathKernel
 
             Numerator = (int)value;
 
-            Fraction f = this.Simplify();
+            Fraction f = GetReduced();
             Numerator = f.Numerator;
             Denominator = f.Denominator;
         }
@@ -45,136 +64,53 @@ namespace MathCLI.MathKernel
         public ITerm ReduceStep(VariableContext context) => this;
         public ITerm Substitute(VariableContext context) => this;
 
-        public static implicit operator double(Fraction value)
+
+        public Fraction Pow(int i)
         {
-            return (double)value.Numerator / value.Denominator;
-        }
+            if (i < 0)
+                return GetReciprocal().Pow(-i);
 
-        public static explicit operator int(Fraction value)
-        {
-            return (int)value.Numerator / value.Denominator;
-        }
-
-        public static bool operator ==(Fraction a, Fraction b)
-        {
-            int first = a.Denominator * b.Numerator;
-            int second = b.Denominator * a.Numerator;
-            return first == second;
-        }
-
-        public static bool operator !=(Fraction a, Fraction b)
-        {
-            return !(a == b);
-        }
-
-        public static bool operator >(Fraction a, Fraction b)
-        {
-            return a - b > 0;
-        }
-
-        public static bool operator <(Fraction a, Fraction b)
-        {
-            return a - b < 0;
-        }
-
-        public static Fraction operator +(Fraction f)
-        {
-            return f;
-        }
-
-        public static Fraction operator -(Fraction f)
-        {
-            return new Fraction(-f.Numerator, f.Denominator);
-        }
-
-        public static Fraction operator +(Fraction a, Fraction b)
-        {
-            int numerator = a.Numerator * b.Denominator + b.Numerator * a.Denominator;
-            int denominator = a.Denominator * b.Denominator;
-
-            return new Fraction(numerator, denominator);
-        }
-
-        public static Fraction operator -(Fraction a, Fraction b)
-        {
-            return a + (-b);
-        }
-
-        public static Fraction operator *(Fraction a, Fraction b)
-        {
-            int numerator = a.Numerator * b.Numerator;
-            int denominator = a.Denominator * b.Denominator;
-
-            return new Fraction(numerator, denominator);
-        }
-
-        public static Fraction operator /(Fraction a, int i)
-        {
-            a.Denominator *= i;
-
-            return a;
-        }
-
-        public static Fraction operator /(Fraction a, Fraction b)
-        {
-            if (b.Denominator == 1)
+            long num = 1, den = 1;
+            for (int k = 0; k < i; k++)
             {
-                return a / b.Numerator;
+                num *= Numerator;
+                den *= Denominator;
             }
-
-            return a * b.Flip();
+            return new Fraction((int)num, (int)den).GetReduced();
         }
 
-
-        public Fraction Flip()
+        public Fraction GetReduced()
         {
+            if (Numerator == 0)
+                return new Fraction(0, 1);
+
+            int gcd = FindGCD(Numerator, Denominator);
+            return new Fraction(Numerator / gcd, Denominator / gcd);
+        }
+
+        public Fraction GetReciprocal()
+        {
+            if (Numerator == 0)
+                throw new DivideByZeroException();
+
             return new Fraction(Denominator, Numerator);
         }
 
-        public Fraction Simplify()
+        public static int FindGCD(int a, int b)
         {
-            if (Numerator == 0)
-            {
-                return new Fraction(0);
-            }
-
-            int gcd = GCD();
-
-            int numerator = Numerator / gcd;
-            int denominator = Denominator / gcd;
-
-            return new Fraction(numerator, denominator);
-        }
-
-        public int GCD()
-        {
-            int a = Numerator;
-            int b = Denominator;
-
-            if (a < 0)
-            {
-                a = -a;
-            }
-            if (b < 0)
-            {
-                b = -b;
-            }
+            a = Math.Abs(a);
+            b = Math.Abs(b);
 
             while (a != 0 && b != 0)
             {
                 if (a > b)
-                {
                     a %= b;
-                }
                 else
-                {
                     b %= a;
-                }
             }
 
             return a | b;
         }
-
 
         public static bool TryParseFraction(string str, out Fraction? fr)
         {
@@ -211,6 +147,12 @@ namespace MathCLI.MathKernel
 
         public override string ToString()
         {
+            if (Denominator == 0)
+                return "0";
+
+            if (Numerator == Denominator)
+                return "1";
+
             if (Denominator == 1)
                 return $"{Numerator}";
 
