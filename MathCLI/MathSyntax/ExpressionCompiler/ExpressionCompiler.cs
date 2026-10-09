@@ -15,14 +15,14 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
 {
     public class ExpressionCompiler
     {
-        private IReadOnlyList<Token> Tokens;
         private int pos;
+        private IReadOnlyList<Token> tokens;
 
 
         public ITerm CompileDescent(IReadOnlyList<Token> tokens)
         {
-            Tokens = tokens;
             pos = 0;
+            this.tokens = tokens;
 
             return GetExpression();
         }
@@ -32,24 +32,14 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         {
             ITerm a = GetTerm();
 
-            while (!IsOutLength())
+            while (TryPeek(out Token expToken) && expToken.IsAnyMatch(Op.Plus, Op.Minus))
             {
-                Token tok = Tokens[pos];
+                Advance();
+                ITerm b = GetTerm();
 
-                if (tok.IsAnyMatch(Op.Plus, Op.Minus))
-                {
-                    pos++;
-                    ITerm b = GetTerm();
-
-                    if (tok.IsMatch(Op.Plus))
-                        a = new Addition(a, b);
-                    else
-                        a = new Subtraction(a, b);
-                }
-                else
-                {
-                    break;
-                }
+                a = expToken.IsMatch(Op.Plus)
+                    ? new Addition(a, b)
+                    : new Subtraction(a, b);
             }
 
             return a;
@@ -60,145 +50,125 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         {
             ITerm a = GetUnary();
 
-            while (!IsOutLength())
+            while (TryPeek(out Token termToken) && termToken.IsAnyMatch(Op.Multiply, Op.Divide))
             {
-                Token tok = Tokens[pos];
+                Advance();
+                ITerm b = GetUnary();
 
-                if (tok.IsAnyMatch(Op.Multiply, Op.Divide))
-                {
-                    pos++;
-                    ITerm b = GetUnary();
-
-                    if (tok.IsMatch(Op.Multiply))
-                        a = new Multiplication(a, b);
-                    else
-                        a = new Division(a, b);
-                }
-                else
-                {
-                    break;
-                }
+                a = termToken.IsMatch(Op.Multiply)
+                    ? new Multiplication(a, b)
+                    : new Division(a, b);
             }
 
             return a;
         }
 
-        //
+        // U -> -U | P
         private ITerm GetUnary()
         {
-            if (!IsOutLength() && Tokens[pos].IsMatch(Op.Minus))
+            if (TryPeek(out Token unarToken) && unarToken.IsMatch(Op.Minus))
             {
-                pos++;
+                Advance();
                 return new NegateTerm(GetUnary());
             }
 
             return GetPower();
         }
 
-        // P -> abc(E, E ... ,E) ^ P
+        // P -> abcToken(E, E, ...) ^ P
         private ITerm GetPower()
         {
             ITerm a = GetAbc();
 
-            if (!IsOutLength() && Tokens[pos].IsMatch(Op.Power))
+            if (TryPeek(out Token powToken) && powToken.IsMatch(Op.Power))
             {
-                pos++;
-                var b = GetUnary();
+                Advance();
+                ITerm b = GetUnary();
                 return new Power([a, b]);
             }
 
             return a;
         }
 
-        // P -> abc(E, E ... ,E)
+        // A -> abc(E, E, ...) | F
         private ITerm GetAbc()
         {
-            // Get abc token
-            Token abc = Tokens[pos];
-            if (abc.Kind != TokenType.Function)
+            // Get abcToken token
+            if (!TryPeek(out Token abcToken) || abcToken.Kind != TokenType.Function)
                 return GetFactor();
 
-            // Move through open bracket
-            Token open = Tokens[++pos];
-            if (open.Kind != TokenType.OpenBracket)
-                throw new Exception("Need bracket after function");
-            pos++;
+            // Capture func
+            Advance();
 
-            // Get fucntion arguments
+            // Move through open bracket
+            if (!TryAdvance(out Token open) || open.Kind != TokenType.OpenBracket)
+                throw new Exception("Need bracket after function");
+
+            // Get function arguments
             ITerm[] args = GetCommaArgs();
 
             // Move through close bracket
-            Token? close = !IsOutLength() ? Tokens[pos] : null;
-            if (!close.HasValue || close.Value.Kind != TokenType.CloseBracket)
+            if (!TryAdvance(out Token close) || close.Kind != TokenType.CloseBracket)
                 throw new Exception("Need close bracket");
-            pos++;
 
             // Match functions
-            if (abc.IsMatch(Op.Pow))
+            if (abcToken.IsMatch(Op.Pow))
                 return new Power(args);
 
             throw new Exception("Not found function");
         }
 
-        // F -> N | (E)
+        // F -> N | V | (E)
         private ITerm GetFactor()
         {
-            Token factor = Tokens[pos];
-            ITerm result;
+            if (!TryPeek(out Token factorToken))
+                throw new Exception("Unexpected end of expression");
 
-            if (factor.Kind == TokenType.OpenBracket)
+            ITerm factor;
+            switch (factorToken.Kind)
             {
-                pos++;
-                result = GetExpression();
-                Token closingBracket;
-                if (!IsOutLength())
-                {
-                    closingBracket = Tokens[pos];
-                }
-                else
-                {
-                    throw new Exception("No end expression");
-                }
+                case TokenType.OpenBracket:
+                    Advance();
+                    factor = GetExpression();
 
-                if (IsOutLength() || closingBracket.Kind != TokenType.CloseBracket)
-                    throw new Exception("End is not a bracket");
+                    if (!TryAdvance(out Token closingBracket) || closingBracket.Kind != TokenType.CloseBracket)
+                        throw new Exception("End is not a bracket");
 
-                pos++;
-            }
-            else if (factor.Kind == TokenType.Variable)
-            {
-                result = new Variable(factor.Value[0]);
-                pos++;
-            }
-            else
-            {
-                if (!Fraction.TryParseFraction(factor.Value, out var fraction))
-                    throw new Exception("Invalid fraction format");
+                    break;
 
-                result = fraction;
-                pos++;
+                case TokenType.Variable:
+                    factor = new Variable(factorToken.Value[0]);
+                    Advance();
+                    break;
+
+                case TokenType.Number:
+
+                    if (!Fraction.TryParseFraction(factorToken.Value, out var fraction))
+                        throw new Exception("Invalid fraction format");
+
+                    factor = fraction;
+                    Advance();
+                    break;
+
+                default:
+                    throw new Exception("Unknown token exeption");
             }
 
-            return result;
-        }
-
-        private bool IsOutLength()
-        {
-            return pos > Tokens.Count - 1;
+            return factor;
         }
 
         private ITerm[] GetCommaArgs()
         {
             var args = new List<ITerm>();
 
-            if (!IsOutLength() && Tokens[pos].Kind == TokenType.CloseBracket)
+            if (TryPeek(out Token first) && first.Kind == TokenType.CloseBracket)
                 return args.ToArray();
 
             args.Add(GetExpression());
 
-            while (!IsOutLength() && Tokens[pos].Kind == TokenType.Comma)
+            while (TryPeek(out Token tok) && tok.Kind == TokenType.Comma)
             {
-                pos++;
+                Advance();
 
                 if (IsOutLength())
                     throw new Exception("Expect comma");
@@ -207,6 +177,32 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
             }
 
             return args.ToArray();
+        }
+
+
+        private bool IsOutLength() => pos >= tokens.Count;
+        private Token Advance() => tokens[pos++];
+
+        private bool TryPeek(out Token token)
+        {
+            if (IsOutLength())
+            {
+                token = default;
+                return false;
+            }
+            token = tokens[pos];
+            return true;
+        }
+
+        private bool TryAdvance(out Token token)
+        {
+            if (IsOutLength())
+            {
+                token = default;
+                return false;
+            }
+            token = Advance();
+            return true;
         }
     }
 }
