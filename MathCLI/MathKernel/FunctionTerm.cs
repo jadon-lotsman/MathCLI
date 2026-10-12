@@ -28,6 +28,8 @@ namespace MathCLI.MathKernel
 
 
         public abstract Fraction ExecuteFunction(VariableContext context);
+        public abstract ITerm Simplify();
+
 
         public Fraction Execute(VariableContext context)
         {

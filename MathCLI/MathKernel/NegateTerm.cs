@@ -10,8 +10,8 @@ namespace MathCLI.MathKernel
 {
     public class NegateTerm : ITerm
     {
-        protected ITerm Term;
-        public int Precedence => int.MaxValue;
+        public ITerm Term { get; private set; }
+        public int Precedence => 2;
         public bool IsValue => false;
 
         public NegateTerm(ITerm term)
@@ -21,6 +21,8 @@ namespace MathCLI.MathKernel
 
 
         public Fraction Execute(VariableContext context) => -Term.Execute(context);
+        public ITerm Simplify() => this;
+
 
         public ITerm ReduceStep(VariableContext context)
         {
@@ -39,6 +41,9 @@ namespace MathCLI.MathKernel
 
         public override string ToString()
         {
+            if (Term.Precedence >= Precedence + 1)
+                return $"-{Term}";
+
             return $"-({Term})";
         }
     }

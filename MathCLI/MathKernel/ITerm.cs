@@ -13,6 +13,7 @@ namespace MathCLI.MathKernel
         bool IsValue { get; }
 
         Fraction Execute(VariableContext context);
+        ITerm Simplify();
         ITerm ReduceStep(VariableContext context);
         ITerm Substitute(VariableContext context);
 

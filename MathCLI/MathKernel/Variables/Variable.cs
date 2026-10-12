@@ -18,6 +18,7 @@ namespace MathCLI.MathKernel.Variables
         }
 
         public Fraction Execute(VariableContext context) => context.GetVariable(Name);
+        public ITerm Simplify() => this;
         public ITerm ReduceStep(VariableContext context) => Execute(context);
         public ITerm Substitute(VariableContext context) => Execute(context);
 

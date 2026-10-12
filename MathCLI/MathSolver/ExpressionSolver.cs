@@ -26,7 +26,7 @@ namespace MathCLI.MathSolver
         public string[] Solve(string expression, VariableContext context, SolverMode mode=SolverMode.Value)
         {
             ReadResult read = _reader.Read(expression);
-            ITerm term = _compiler.CompileDescent(read.Tokens);
+            ITerm term = _compiler.CompileDescent(read.Tokens).Simplify();
 
             if (mode == SolverMode.Value)
                 return [term.Execute(context).GetReduced().ToString()];

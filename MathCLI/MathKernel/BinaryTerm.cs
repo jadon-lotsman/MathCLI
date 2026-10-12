@@ -24,6 +24,7 @@ namespace MathCLI.MathKernel
 
 
         public abstract Fraction Execute(VariableContext context);
+        public abstract ITerm Simplify();
 
         public ITerm ReduceStep(VariableContext context)
         {
@@ -50,20 +51,23 @@ namespace MathCLI.MathKernel
 
         public override string ToString()
         {
-            string left = WrapIfNeeded(Left);
-            string right = WrapIfNeeded(Right);
+            string left = WrapLeft(Left);
+            string right = WrapRight(Right);
             return $"{left}{Symbol}{right}";
         }
 
-        private string WrapIfNeeded(ITerm term)
+        private string WrapLeft(ITerm term)
         {
-            if (term.Precedence < Precedence)
-                return $"({term})";
+            return term.Precedence < Precedence ? $"({term})" : term.ToString();
+        }
 
-            if (term.Precedence > Precedence)
-                return term.ToString();
+        private string WrapRight(ITerm term)
+        {
+            if (term is NegateTerm) return $"({term})";
 
-            return  $"({term})";
+            if (term.Precedence < Precedence) return $"({term})";
+            if (term.Precedence > Precedence) return term.ToString();
+            return $"({term})";
         }
     }
 }

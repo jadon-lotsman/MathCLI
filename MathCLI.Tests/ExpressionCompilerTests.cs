@@ -101,8 +101,9 @@ namespace MathCLI.Tests
             var read = reader.Read(expression);
             Assert.Empty(read.UnknownTokens);
 
-            var actual = compiler.CompileDescent(read.Tokens).Execute(context);
-            Assert.Equal(expected, actual, precision: 5);
+            var simplified = compiler.CompileDescent(read.Tokens).Simplify().Execute(context);
+            var actual = simplified.Execute(context);
+            Assert.Equal(expected, (double)actual, precision: 5);
         }
     }
 }
