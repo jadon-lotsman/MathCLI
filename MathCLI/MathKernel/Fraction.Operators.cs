@@ -8,7 +8,7 @@ namespace MathCLI.MathKernel
 {
     public partial class Fraction : ITerm, IEquatable<Fraction>
     {
-        public static implicit operator double(Fraction value) => (double)value.Numerator / value.Denominator;
+        public static explicit operator double(Fraction value) => (double)value.Numerator / value.Denominator;
         public static explicit operator long(Fraction value) => value.Numerator / value.Denominator;
 
 

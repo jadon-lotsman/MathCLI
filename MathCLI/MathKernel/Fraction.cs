@@ -11,10 +11,19 @@ namespace MathCLI.MathKernel
 {
     public partial class Fraction : ITerm, IEquatable<Fraction>
     {
-        public long Numerator { get; private set; }
-        public long Denominator { get; private set; }
+        public long Numerator   { get; }
+        public long Denominator { get; }
         public int Precedence => int.MaxValue;
         public bool IsValue => true;
+
+
+        public static Fraction Zero => new Fraction(0, 1);
+        public static Fraction One  => new Fraction(1, 1);
+
+        public bool IsZero  => Numerator == 0;
+        public bool IsOne   => Numerator == Denominator;
+        public bool IsInteger   => Denominator == 1;
+
 
         public Fraction(long numerator, long denominator)
         {
@@ -61,6 +70,7 @@ namespace MathCLI.MathKernel
         }
 
         public Fraction Execute(VariableContext context) => this;
+        public ITerm Simplify() => this;
         public ITerm ReduceStep(VariableContext context) => this;
         public ITerm Substitute(VariableContext context) => this;
 
@@ -90,7 +100,7 @@ namespace MathCLI.MathKernel
                     return false;
                 }
 
-                fraction = new Fraction(0, 1);
+                fraction = Fraction.Zero;
                 return true;
             }
 
@@ -170,13 +180,10 @@ namespace MathCLI.MathKernel
 
         public override string ToString()
         {
-            if (Denominator == 0)
-                return "0";
-
-            if (Numerator == Denominator)
+            if (IsOne)
                 return "1";
 
-            if (Denominator == 1)
+            if (IsInteger)
                 return $"{Numerator}";
 
             else if (Denominator % 10 == 0)
