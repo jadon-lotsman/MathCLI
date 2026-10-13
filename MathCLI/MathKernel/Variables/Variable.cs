@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathCLI.MathKernel.TermVisitors;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace MathCLI.MathKernel.Variables
 {
     public class Variable : ITerm
     {
-        private char Name;
+        public char Name;
         public int Precedence { get => int.MaxValue; }
         public bool IsValue { get => false; }
 
@@ -17,10 +18,7 @@ namespace MathCLI.MathKernel.Variables
             Name = name;
         }
 
-        public Fraction Execute(VariableContext context) => context.GetVariable(Name);
-        public ITerm Simplify() => this;
-        public ITerm ReduceStep(VariableContext context) => Execute(context);
-        public ITerm Substitute(VariableContext context) => Execute(context);
+        public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
 
         public override string ToString()
         {

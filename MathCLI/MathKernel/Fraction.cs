@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.Variables;
+﻿using MathCLI.MathKernel.TermVisitors;
+using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,6 +25,7 @@ namespace MathCLI.MathKernel
         public bool IsOne   => Numerator == Denominator;
         public bool IsInteger   => Denominator == 1;
 
+        public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
 
         public Fraction(long numerator, long denominator)
         {
@@ -68,12 +70,6 @@ namespace MathCLI.MathKernel
             Numerator = f.Numerator;
             Denominator = f.Denominator;
         }
-
-        public Fraction Execute(VariableContext context) => this;
-        public ITerm Simplify() => this;
-        public ITerm ReduceStep(VariableContext context) => this;
-        public ITerm Substitute(VariableContext context) => this;
-
 
         public Fraction Pow(int i)
         {

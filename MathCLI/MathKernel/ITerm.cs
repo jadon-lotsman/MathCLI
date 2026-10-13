@@ -1,4 +1,5 @@
 ﻿using MathCLI.MathKernel.Variables;
+using MathCLI.MathKernel.TermVisitors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,7 @@ namespace MathCLI.MathKernel
         int Precedence { get; }
         bool IsValue { get; }
 
-        Fraction Execute(VariableContext context);
-        ITerm Simplify();
-        ITerm ReduceStep(VariableContext context);
-        ITerm Substitute(VariableContext context);
-
+        ITerm Accept(ITermVisitor visitor);
         string ToString();
     }
 }

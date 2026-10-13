@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathCLI.MathKernel.TermVisitors;
 
 namespace MathCLI.MathSolver
 {
@@ -23,25 +24,26 @@ namespace MathCLI.MathSolver
         }
 
 
-        public string[] Solve(string expression, VariableContext context, SolverMode mode=SolverMode.Value)
+        public string[] Solve(string expression, VariableContext context, SolverMode mode = SolverMode.Value)
         {
             ReadResult read = _reader.Read(expression);
-            ITerm term = _compiler.CompileDescent(read.Tokens).Simplify();
+            ITerm term = _compiler.CompileDescent(read.Tokens);
 
-            if (mode == SolverMode.Value)
-                return [term.Execute(context).GetReduced().ToString()];
+            var visitor = new SimplifyVisitor(context);
 
-            var steps = new List<string>() { term.ToString() };
-            while(!term.IsValue)
-            {
-                term = term.ReduceStep(context);
-                steps.Add(term.ToString());
-            }
+            return [term.Accept(visitor).ToString()];
 
-            if (term.Execute(context).TryGetReduced(out var reduced))
-                steps.Add(reduced.ToString());
+            //var steps = new List<string>() { term.ToString() };
+            //while(!term.IsValue)
+            //{
+            //    term = term.ReduceStep(context);
+            //    steps.Add(term.ToString());
+            //}
 
-            return steps.ToArray();
+            //if (term.Execute(context).TryGetReduced(out var reduced))
+            //    steps.Add(reduced.ToString());
+
+            //return steps.ToArray();
         }
     }
 }

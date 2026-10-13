@@ -84,7 +84,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
             {
                 Advance();
                 ITerm b = GetUnary();
-                return new Power([a, b]);
+                return new Power(a, b);
             }
 
             return a;

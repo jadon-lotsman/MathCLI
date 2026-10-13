@@ -1,3 +1,5 @@
+using MathCLI.MathKernel;
+using MathCLI.MathKernel.TermVisitors;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathSyntax.ExpressionCompiler;
 using MathCLI.MathSyntax.ExpressionReader;
@@ -101,9 +103,13 @@ namespace MathCLI.Tests
             var read = reader.Read(expression);
             Assert.Empty(read.UnknownTokens);
 
-            var simplified = compiler.CompileDescent(read.Tokens).Simplify().Execute(context);
-            var actual = simplified.Execute(context);
-            Assert.Equal(expected, (double)actual, precision: 5);
+            var term = compiler.CompileDescent(read.Tokens);
+            var actual = term.Accept(new SimplifyVisitor());
+
+            if (actual is Fraction fr)
+                Assert.Equal(expected, (double)fr, precision: 5);
+            else
+                Assert.Fail();
         }
     }
 }

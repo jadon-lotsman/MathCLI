@@ -1,4 +1,5 @@
 ﻿using MathCLI.MathKernel.Variables;
+using MathCLI.MathKernel.TermVisitors;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -11,7 +12,7 @@ namespace MathCLI.MathKernel
     public abstract class FunctionTerm : ITerm
     {
         protected string Name { get; }
-        protected ITerm[] Args;
+        public ITerm[] Args { get; }
         public int MinArgs { get; }
         public int? MaxArgs { get; }
         public int Precedence { get => int.MaxValue; }
@@ -27,11 +28,8 @@ namespace MathCLI.MathKernel
         }
 
 
-        public abstract Fraction ExecuteFunction(VariableContext context);
-        public abstract ITerm Simplify();
-
-
-        public Fraction Execute(VariableContext context)
+        public abstract ITerm AcceptFunction(ITermVisitor visitor);
+        public ITerm Accept(ITermVisitor visitor)
         {
             if (Args.Length < MinArgs || Args.Length > MaxArgs)
             {
@@ -39,33 +37,9 @@ namespace MathCLI.MathKernel
                 throw new Exception($"Function '{Name}' expects {requires}, but got {Args.Length}!");
             }
 
-            return ExecuteFunction(context);
+            return AcceptFunction(visitor);
         }
 
-        public ITerm ReduceStep(VariableContext context)
-        {
-            if (Args.Any() && Args.All(e => e.IsValue))
-                return Execute(context);
-
-            for (int i = 0; i < Args.Length; i++)
-            {
-                if (!Args[i].IsValue)
-                {
-                    Args[i] = Args[i].ReduceStep(context);
-                    return this;
-                }
-            }
-
-            return this;
-        }
-
-        public ITerm Substitute(VariableContext context)
-        {
-            for (int i = 0; i < Args.Length; i++)
-                Args[i] = Args[i].Substitute(context);
-                
-            return this;
-        }
 
         public override string ToString()
         {

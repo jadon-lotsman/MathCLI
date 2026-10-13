@@ -1,4 +1,6 @@
-﻿using MathCLI.MathKernel.Variables;
+﻿using MathCLI.MathKernel.Terms;
+using MathCLI.MathKernel.TermVisitors;
+using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,25 +21,8 @@ namespace MathCLI.MathKernel
             Term = term;
         }
 
+        public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
 
-        public Fraction Execute(VariableContext context) => -Term.Execute(context);
-        public ITerm Simplify() => this;
-
-
-        public ITerm ReduceStep(VariableContext context)
-        {
-            if (Term.IsValue)
-                return Execute(context);
-
-            Term = Term.ReduceStep(context);
-            return this;
-        }
-
-        public ITerm Substitute(VariableContext context)
-        {
-            Term = Term.Substitute(context);
-            return this;
-        }
 
         public override string ToString()
         {
