@@ -19,7 +19,7 @@ namespace MathCLI.MathKernel.TermVisitors
 
 
         public ITerm Visit(Fraction fraction) => fraction;
-        public ITerm Visit(Variable variable) => _variables.GetVariable(variable.Name);
+        public ITerm Visit(Variable variable) => _variables.TryGetVariable(variable.Name, out var fraction) ? fraction! : variable;
 
         public ITerm Visit(NegateTerm negate)
         {

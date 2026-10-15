@@ -18,13 +18,19 @@ namespace MathCLI.MathKernel.Variables
             SetVariable('e', Math.E);
         }
 
-        public Fraction GetVariable(char name)
+        public bool TryGetVariable(char name, out Fraction? fraction)
         {
+            fraction = default;
+
             if (variables.ContainsKey(name))
-                return variables[name];
+                fraction = variables[name];
             else
-                throw new Exception("Variable '" + name + "' is not exist");
+                return false;
+
+            return true;
         }
+
+        public Fraction GetVariable(char name) => TryGetVariable(name, out var fraction) ? fraction! : throw new Exception("Variable '" + name + "' is not exist");
 
         public void SetVariable(char name, double value)
         {

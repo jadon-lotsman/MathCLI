@@ -19,7 +19,7 @@ namespace MathCLI.MathKernel.TermVisitors
 
 
         public ITerm Visit(Fraction fraction) => fraction;
-        public ITerm Visit(Variable variable) => _variables == null? variable : _variables.GetVariable(variable.Name);
+        public ITerm Visit(Variable variable) => _variables != null && _variables.TryGetVariable(variable.Name, out var fraction) ? fraction! : variable;
 
 
         public ITerm Visit(NegateTerm negate)
@@ -112,7 +112,7 @@ namespace MathCLI.MathKernel.TermVisitors
                 return a * b;
 
             // x * x → x^2
-            if (left == right)
+            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
                 return new Power(left, new Fraction(2, 1));
 
             return new Multiplication(left, right);

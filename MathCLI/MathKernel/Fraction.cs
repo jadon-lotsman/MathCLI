@@ -139,7 +139,7 @@ namespace MathCLI.MathKernel
 
         public static bool TryParseFraction(string? str, out Fraction? fraction)
         {
-            fraction = null;
+            fraction = default;
 
             if (string.IsNullOrWhiteSpace(str))
                 return false;
