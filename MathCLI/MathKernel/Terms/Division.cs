@@ -15,6 +15,6 @@ namespace MathCLI.MathKernel.Terms
         public override int Precedence => 3;
         public Division(params ITerm[] args) : base(":", args, 2) { }
 
-        public override ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
+        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
     }
 }

@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.TermVisitors
 {
-    public interface ITermVisitor
+    public interface ITermVisitor<T>
     {
-        ITerm Visit(Fraction fraction);
-        ITerm Visit(Variable variable);
-        ITerm Visit(NegateTerm negate);
-        ITerm Visit(Addition addition);
-        ITerm Visit(Subtraction subtraction);
-        ITerm Visit(Multiplication multiplication);
-        ITerm Visit(Division division);
-        ITerm Visit(Power power);
+        T Visit(Fraction fraction);
+        T Visit(Variable variable);
+        T Visit(NegateTerm negate);
+        T Visit(Addition addition);
+        T Visit(Subtraction subtraction);
+        T Visit(Multiplication multiplication);
+        T Visit(Division division);
+        T Visit(Power power);
     }
 }

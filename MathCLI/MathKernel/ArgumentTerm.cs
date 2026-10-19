@@ -11,7 +11,7 @@ namespace MathCLI.MathKernel
 {
     public abstract class ArgumentTerm : ITerm
     {
-        protected string Name { get; }
+        public string Name { get; }
         public ITerm[] Args { get; }
         public int MinArgs { get; }
         public int? MaxArgs { get; }
@@ -37,7 +37,7 @@ namespace MathCLI.MathKernel
         }
 
 
-        public abstract ITerm Accept(ITermVisitor visitor);
+        public abstract T Accept<T>(ITermVisitor<T> visitor);
 
         public override string ToString()
         {

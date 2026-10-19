@@ -25,7 +25,7 @@ namespace MathCLI.MathNumerics
         public bool IsOne   => Numerator == Denominator;
         public bool IsInteger   => Denominator == 1;
 
-        public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
+        public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
 
         public Fraction(long numerator, long denominator)
         {

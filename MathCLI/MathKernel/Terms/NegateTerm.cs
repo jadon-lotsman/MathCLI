@@ -19,7 +19,7 @@ namespace MathCLI.MathKernel.Terms
             Term = term;
         }
 
-        public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
+        public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
 
         public override string ToString() => $"(-{Term})";
     }

@@ -17,7 +17,7 @@ namespace MathCLI.MathKernel.Variables
             Name = name;
         }
 
-        public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
+        public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
 
         public override string ToString() => $"{Name}";
     }

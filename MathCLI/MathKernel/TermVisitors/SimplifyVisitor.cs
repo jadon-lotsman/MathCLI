@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.TermVisitors
 {
-    public class SimplifyVisitor : ITermVisitor
+    public class SimplifyVisitor : ITermVisitor<ITerm>
     {
         private VariableContext? _variables;
 

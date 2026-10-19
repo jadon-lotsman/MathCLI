@@ -12,7 +12,7 @@ namespace MathCLI.MathKernel
     {
         int Precedence { get; }
 
-        ITerm Accept(ITermVisitor visitor);
+        T Accept<T>(ITermVisitor<T> visitor);
         string ToString();
     }
 }
