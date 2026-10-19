@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Terms
 {
-    public class Subtraction : BinaryTerm
+    public class Subtraction : ArgumentTerm
     {
-        public override int Precedence { get => 1; }
-        public Subtraction(ITerm left, ITerm right) : base(left, '-', right) { }
+        public override bool IsInfix => true;
+        public override bool IsRightAssoc => false;
+        public override int Precedence => 1;
+        public Subtraction(params ITerm[] args) : base("-", args, 2) { }
 
         public override ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
     }

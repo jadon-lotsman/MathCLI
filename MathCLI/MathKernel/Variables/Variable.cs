@@ -11,7 +11,6 @@ namespace MathCLI.MathKernel.Variables
     {
         public char Name;
         public int Precedence { get => int.MaxValue; }
-        public bool IsValue { get => false; }
 
         public Variable(char name)
         {
@@ -20,9 +19,6 @@ namespace MathCLI.MathKernel.Variables
 
         public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
 
-        public override string ToString()
-        {
-            return $"{Name}";
-        }
+        public override string ToString() => $"{Name}";
     }
 }

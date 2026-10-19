@@ -30,32 +30,32 @@ namespace MathCLI.MathKernel.TermVisitors
 
         public ITerm Visit(Addition addition)
         {
-            var left = addition.Left.Accept(this);
-            var right = addition.Right.Accept(this);
+            var left = addition.Args[0].Accept(this);
+            var right = addition.Args[1].Accept(this);
 
             return new Addition(left, right);
         }
 
         public ITerm Visit(Subtraction subtraction)
         {
-            var left = subtraction.Left.Accept(this);
-            var right = subtraction.Right.Accept(this);
+            var left = subtraction.Args[0].Accept(this);
+            var right = subtraction.Args[1].Accept(this);
 
             return new Subtraction(left, right);
         }
 
         public ITerm Visit(Multiplication multiplication)
         {
-            var left = multiplication.Left.Accept(this);
-            var right = multiplication.Right.Accept(this);
+            var left = multiplication.Args[0].Accept(this);
+            var right = multiplication.Args[1].Accept(this);
 
             return new Multiplication(left, right);
         }
 
         public ITerm Visit(Division division)
         {
-            var left = division.Left.Accept(this);
-            var right = division.Right.Accept(this);
+            var left = division.Args[0].Accept(this);
+            var right = division.Args[1].Accept(this);
 
             return new Division(left, right);
         }

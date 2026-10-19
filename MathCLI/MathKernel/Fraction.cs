@@ -15,7 +15,6 @@ namespace MathCLI.MathKernel
         public long Numerator   { get; }
         public long Denominator { get; }
         public int Precedence => int.MaxValue;
-        public bool IsValue => true;
 
 
         public static Fraction Zero => new Fraction(0, 1);

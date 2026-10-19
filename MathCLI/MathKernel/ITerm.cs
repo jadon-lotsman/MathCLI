@@ -11,7 +11,6 @@ namespace MathCLI.MathKernel
     public interface ITerm
     {
         int Precedence { get; }
-        bool IsValue { get; }
 
         ITerm Accept(ITermVisitor visitor);
         string ToString();

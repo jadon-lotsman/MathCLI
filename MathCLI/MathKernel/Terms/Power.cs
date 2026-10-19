@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Terms
 {
-    public class Power : FunctionTerm
+    public class Power : ArgumentTerm
     {
-        public Power(params ITerm[] args) : base("pow", args, 2) { }
+        public override bool IsInfix => true;
+        public override bool IsRightAssoc => true;
+        public override int Precedence => 4;
+        public Power(params ITerm[] args) : base("^", args, 2) { }
 
-        public override ITerm AcceptFunction(ITermVisitor visitor) => visitor.Visit(this);
+        public override ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
     }
 }

@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Terms
 {
-    public class Multiplication : BinaryTerm
+    public class Multiplication : ArgumentTerm
     {
+        public override bool IsInfix => true;
+        public override bool IsRightAssoc => false;
         public override int Precedence => 3;
-        public Multiplication(ITerm left, ITerm right) : base(left, '*', right) { }
+        public Multiplication(params ITerm[] args) : base("*", args, 2) { }
 
         public override ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
     }

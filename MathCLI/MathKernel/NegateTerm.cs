@@ -14,7 +14,6 @@ namespace MathCLI.MathKernel
     {
         public ITerm Term { get; private set; }
         public int Precedence => 2;
-        public bool IsValue => false;
 
         public NegateTerm(ITerm term)
         {
@@ -23,13 +22,6 @@ namespace MathCLI.MathKernel
 
         public ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
 
-
-        public override string ToString()
-        {
-            if (Term.Precedence >= Precedence + 1)
-                return $"-{Term}";
-
-            return $"-({Term})";
-        }
+        public override string ToString() => $"(-{Term})";
     }
 }

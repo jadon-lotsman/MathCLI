@@ -39,8 +39,8 @@ namespace MathCLI.MathKernel.TermVisitors
 
         public ITerm Visit(Addition addition)
         {
-            var left = addition.Left.Accept(this);
-            var right = addition.Right.Accept(this);
+            var left = addition.Args[0].Accept(this);
+            var right = addition.Args[1].Accept(this);
 
             // x + (-y) → x - y
             if (right is NegateTerm neg)
@@ -65,8 +65,8 @@ namespace MathCLI.MathKernel.TermVisitors
 
         public ITerm Visit(Subtraction subtraction)
         {
-            var left = subtraction.Left.Accept(this);
-            var right = subtraction.Right.Accept(this);
+            var left = subtraction.Args[0].Accept(this);
+            var right = subtraction.Args[1].Accept(this);
 
             // a - (-b) → a + b
             if (right is NegateTerm neg)
@@ -91,8 +91,8 @@ namespace MathCLI.MathKernel.TermVisitors
 
         public ITerm Visit(Multiplication multiplication)
         {
-            var left = multiplication.Left.Accept(this);
-            var right = multiplication.Right.Accept(this);
+            var left = multiplication.Args[0].Accept(this);
+            var right = multiplication.Args[1].Accept(this);
 
             // x * 0 → 0,  0 * x → 0
             if (right is Fraction rZero && rZero.IsZero) return Fraction.Zero;
@@ -120,8 +120,8 @@ namespace MathCLI.MathKernel.TermVisitors
 
         public ITerm Visit(Division division)
         {
-            var left = division.Left.Accept(this);
-            var right = division.Right.Accept(this);
+            var left = division.Args[0].Accept(this);
+            var right = division.Args[1].Accept(this);
 
             // b == 0 → ex
             if (right is Fraction rZero && rZero.IsZero)

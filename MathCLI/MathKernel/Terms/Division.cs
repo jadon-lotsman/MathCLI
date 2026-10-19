@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Terms
 {
-    public class Division : BinaryTerm
+    public class Division : ArgumentTerm
     {
-        public override int Precedence { get => 3; }
-        public Division(ITerm left, ITerm right) : base(left, ':', right) { }
+        public override bool IsInfix => true;
+        public override bool IsRightAssoc => false;
+        public override int Precedence => 3;
+        public Division(params ITerm[] args) : base(":", args, 2) { }
 
         public override ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
     }

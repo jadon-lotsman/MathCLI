@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Terms
 {
-    public class Addition : BinaryTerm
+    public class Addition : ArgumentTerm
     {
-        public override int Precedence { get => 1; }
-        public Addition(ITerm left, ITerm right) : base(left, '+', right) { }
+        public override bool IsInfix => true;
+        public override bool IsRightAssoc => false;
+        public override int Precedence => 1;
+        public Addition(params ITerm[] args) : base("+", args, 2) { }
 
         public override ITerm Accept(ITermVisitor visitor) => visitor.Visit(this);
     }
