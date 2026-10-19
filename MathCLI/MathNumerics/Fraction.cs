@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.TermVisitors;
+﻿using MathCLI.MathKernel;
+using MathCLI.MathKernel.TermVisitors;
 using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathKernel
+namespace MathCLI.MathNumerics
 {
     public partial class Fraction : ITerm, IEquatable<Fraction>
     {

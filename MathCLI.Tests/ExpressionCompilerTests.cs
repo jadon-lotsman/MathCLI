@@ -1,6 +1,7 @@
 using MathCLI.MathKernel;
 using MathCLI.MathKernel.TermVisitors;
 using MathCLI.MathKernel.Variables;
+using MathCLI.MathNumerics;
 using MathCLI.MathSyntax.ExpressionCompiler;
 using MathCLI.MathSyntax.ExpressionReader;
 

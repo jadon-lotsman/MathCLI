@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
+using MathCLI.MathNumerics;
 
 namespace MathCLI.MathSyntax.ExpressionCompiler
 {

@@ -1,4 +1,5 @@
 ﻿using MathCLI.MathKernel;
+using MathCLI.MathNumerics;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,5 +1,6 @@
 ﻿using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
+using MathCLI.MathNumerics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
