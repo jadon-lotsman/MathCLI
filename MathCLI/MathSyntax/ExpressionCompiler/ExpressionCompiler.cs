@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathNumerics;
+using MathCLI.MathKernel.Numbers;
 
 namespace MathCLI.MathSyntax.ExpressionCompiler
 {
@@ -147,7 +148,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
                     if (!Fraction.TryParseFraction(factorToken.Value, out var fraction))
                         throw new Exception("Invalid fraction format");
 
-                    factor = fraction;
+                    factor = new Number(fraction);
                     Advance();
                     break;
 

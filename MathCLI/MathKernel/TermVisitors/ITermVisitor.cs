@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.Terms;
+﻿using MathCLI.MathKernel.Numbers;
+using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathNumerics;
 using System;
@@ -11,7 +12,7 @@ namespace MathCLI.MathKernel.TermVisitors
 {
     public interface ITermVisitor<T>
     {
-        T Visit(Fraction fraction);
+        T Visit(Number number);
         T Visit(Variable variable);
         T Visit(NegateTerm negate);
         T Visit(Addition addition);

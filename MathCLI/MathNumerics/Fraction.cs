@@ -11,21 +11,24 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathNumerics
 {
-    public partial class Fraction : ITerm, IEquatable<Fraction>
+    public partial class Fraction : IEquatable<Fraction>
     {
         public long Numerator   { get; }
         public long Denominator { get; }
-        public int Precedence => int.MaxValue;
 
 
-        public static Fraction Zero => new Fraction(0, 1);
-        public static Fraction One  => new Fraction(1, 1);
+        public bool IsZero          => Numerator == 0;
+        public bool IsNegative      => Numerator < 0;
+        public bool IsInteger       => Denominator == 1;
+        public bool IsOne           => Numerator == Denominator;
+        public bool IsNegativeOne   => IsOne && IsNegative;
 
-        public bool IsZero  => Numerator == 0;
-        public bool IsOne   => Numerator == Denominator;
-        public bool IsInteger   => Denominator == 1;
+        public static readonly Fraction Zero        = new(0, 1);
+        public static readonly Fraction Half        = new(1, 2);
+        public static readonly Fraction One         = new(1, 1);
+        public static readonly Fraction NegativeOne = new(-1, 1);
+        public static readonly Fraction Two         = new(2, 1);
 
-        public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
 
         public Fraction(long numerator, long denominator)
         {
@@ -83,7 +86,7 @@ namespace MathCLI.MathNumerics
                 den *= Denominator;
             }
 
-            return new Fraction((int)num, (int)den);
+            return new Fraction(num, den);
         }
 
         public bool TryGetReduced(out Fraction fraction)

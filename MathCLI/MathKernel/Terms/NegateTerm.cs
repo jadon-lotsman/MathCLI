@@ -11,16 +11,15 @@ namespace MathCLI.MathKernel.Terms
 {
     public class NegateTerm : ITerm
     {
-        public ITerm Term { get; private set; }
+        public ITerm InnerTerm { get; private set; }
         public int Precedence => 2;
 
-        public NegateTerm(ITerm term)
+        public NegateTerm(ITerm inner)
         {
-            Term = term;
+            InnerTerm = inner;
         }
 
         public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
-
-        public override string ToString() => $"(-{Term})";
+        public override string ToString() => $"-{InnerTerm}";
     }
 }

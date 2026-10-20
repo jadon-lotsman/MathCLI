@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.Terms;
+﻿using MathCLI.MathKernel.Numbers;
+using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathNumerics;
 using System;
@@ -15,12 +16,12 @@ namespace MathCLI.MathKernel.TermVisitors
         public RenderVisitor() { }
 
 
-        public string Visit(Fraction fraction) => fraction.ToString();
+        public string Visit(Number number) => number.Value.ToString();
         public string Visit(Variable variable) => variable.Name.ToString();
 
 
         public string Visit(NegateTerm negate) 
-            => "-" + Render(negate.Term, negate.Precedence + 1);
+            => "-" + Render(negate.InnerTerm, negate.Precedence + 1);
         public string Visit(Addition addition)
             => RenderArgument(addition);
         public string Visit(Subtraction subtraction)

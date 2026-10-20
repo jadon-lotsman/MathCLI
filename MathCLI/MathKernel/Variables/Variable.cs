@@ -9,8 +9,8 @@ namespace MathCLI.MathKernel.Variables
 {
     public class Variable : ITerm
     {
-        public char Name;
-        public int Precedence { get => int.MaxValue; }
+        public char Name { get; private set; }
+        public int Precedence => int.MaxValue;
 
         public Variable(char name)
         {

@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.Terms;
+﻿using MathCLI.MathKernel.Numbers;
+using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathNumerics;
 using System;
@@ -11,7 +12,7 @@ namespace MathCLI.MathKernel.TermVisitors
 {
     public class SimplifyVisitor : ITermVisitor<ITerm>
     {
-        private VariableContext? _variables;
+        private readonly VariableContext? _variables;
 
         public SimplifyVisitor(VariableContext? variables=null)
         {
@@ -19,21 +20,21 @@ namespace MathCLI.MathKernel.TermVisitors
         }
 
 
-        public ITerm Visit(Fraction fraction) => fraction;
-        public ITerm Visit(Variable variable) => _variables != null && _variables.TryGetVariable(variable.Name, out var fraction) ? fraction! : variable;
+        public ITerm Visit(Number number) => number;
+        public ITerm Visit(Variable variable) => _variables != null && _variables.TryGetVariable(variable.Name, out var fraction) ? new Number(fraction!) : variable;
 
 
         public ITerm Visit(NegateTerm negate)
         {
-            var term = negate.Term.Accept(this);
+            var term = negate.InnerTerm.Accept(this);
 
             // -(-x) → x
             if (term is NegateTerm inner)
-                return inner.Term;
+                return inner.InnerTerm;
 
             // -(a) → -a
-            if (term is Fraction a)
-                return -a;
+            if (term is Number a)
+                return new Number(-a.Value);
 
             return new NegateTerm(term);
         }
@@ -45,21 +46,21 @@ namespace MathCLI.MathKernel.TermVisitors
 
             // x + (-y) → x - y
             if (right is NegateTerm neg)
-                return new Subtraction(left, neg.Term).Accept(this);
+                return new Subtraction(left, neg.InnerTerm).Accept(this);
 
             // x + 0 → x
-            if (right is Fraction rZero && rZero.IsZero) return left;
+            if (right is Number rZero && rZero.Value.IsZero) return left;
 
             // 0 + x → x
-            if (left is Fraction lZero && lZero.IsZero) return right;
+            if (left is Number lZero && lZero.Value.IsZero) return right;
 
             // 2 + 3 → 5
-            if (left is Fraction a && right is Fraction b)
-                return a + b;
+            if (left is Number a && right is Number b)
+                return new Number(a.Value + b.Value);
 
             // x + x → 2x
-            if (left is Variable && right is Variable && left == right)
-                return new Multiplication(new Fraction(2, 1), left);
+            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
+                return new Multiplication(new Number(Fraction.Two), left);
 
             return new Addition(left, right);
         }
@@ -71,20 +72,23 @@ namespace MathCLI.MathKernel.TermVisitors
 
             // a - (-b) → a + b
             if (right is NegateTerm neg)
-                return new Addition(left, neg.Term).Accept(this);
+                return new Addition(left, neg.InnerTerm).Accept(this);
 
             // x - 0 → x
-            if (right is Fraction rZero && rZero.IsZero) return left;
+            if (right is Number rZero && rZero.Value.IsZero)
+                return left;
 
             // 0 - x → -x
-            if (left is Fraction lZero && lZero.IsZero) return new NegateTerm(right);
+            if (left is Number lZero && lZero.Value.IsZero)
+                return new NegateTerm(right).Accept(this);
 
             // x - x → 0
-            if (left == right) return Fraction.Zero;
+            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
+                return new Number(Fraction.Zero);
 
             // a - b → a-b
-            if (left is Fraction a && right is Fraction b)
-                return a - b;
+            if (left is Number a && right is Number b)
+                return new Number(a.Value - b.Value);
 
             return new Subtraction(left, right);
         }
@@ -96,25 +100,27 @@ namespace MathCLI.MathKernel.TermVisitors
             var right = multiplication.Args[1].Accept(this);
 
             // x * 0 → 0,  0 * x → 0
-            if (right is Fraction rZero && rZero.IsZero) return Fraction.Zero;
-            if (left is Fraction lZero && lZero.IsZero) return Fraction.Zero;
+            if (right is Number rZero && rZero.Value.IsZero) return new Number(Fraction.Zero);
+            if (left is Number lZero && lZero.Value.IsZero) return new Number(Fraction.Zero);
 
             // x * 1 → x,  1 * x → x
-            if (right is Fraction rOne && rOne.IsOne) return left;
-            if (left is Fraction lOne && lOne.IsOne) return right;
+            if (right is Number rOne && rOne.Value.IsOne) return left;
+            if (left is Number lOne && lOne.Value.IsOne) return right;
 
             // -1 * x → -x,  x * (-1) → -x
-            var minusOne = new Fraction(-1, 1);
-            if (right is Fraction rMinus && rMinus == minusOne) return new NegateTerm(left);
-            if (left is Fraction lMinus && lMinus == minusOne) return new NegateTerm(right);
+            if (right is Number rNegative && rNegative.Value.IsNegativeOne)
+                return new NegateTerm(left).Accept(this);
+
+            if (left is Number lNegative && lNegative.Value.IsNegativeOne)
+                return new NegateTerm(right).Accept(this);
 
             // a * b → a*b
-            if (left is Fraction a && right is Fraction b)
-                return a * b;
+            if (left is Number a && right is Number b)
+                return new Number(a.Value * b.Value);
 
             // x * x → x^2
             if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
-                return new Power(left, new Fraction(2, 1));
+                return new Power(left, new Number(Fraction.Two));
 
             return new Multiplication(left, right);
         }
@@ -125,21 +131,23 @@ namespace MathCLI.MathKernel.TermVisitors
             var right = division.Args[1].Accept(this);
 
             // b == 0 → ex
-            if (right is Fraction rZero && rZero.IsZero)
+            if (right is Number rZero && rZero.Value.IsZero)
                 throw new DivideByZeroException();
 
             // x / 1 → x
-            if (right is Fraction rOne && rOne.IsOne) return left;
+            if (right is Number rOne && rOne.Value.IsOne) return left;
 
             // 0 / x → 0  
-            if (left is Fraction lZero && lZero.IsZero) return Fraction.Zero;
+            if (left is Number lZero && lZero.Value.IsZero)
+                return new Number(Fraction.Zero);
 
             // x / x → 1 
-            if (left == right) return Fraction.One;
+            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
+                return new Number(Fraction.One);
 
             // a / b → a/b
-            if (left is Fraction a && right is Fraction b)
-                return a / b;
+            if (left is Number a && right is Number b)
+                return new Number(a.Value / b.Value);
 
             return new Division(left, right);
         }
@@ -151,24 +159,27 @@ namespace MathCLI.MathKernel.TermVisitors
             var right = power.Args[1].Accept(this);
 
             // x ^ 0 → 1
-            if (right is Fraction rZero && rZero.IsZero) return Fraction.One;
+            if (right is Number rZero && rZero.Value.IsZero)
+                return new Number(Fraction.One);
 
             // x ^ 1 → x
-            if (right is Fraction rOne && rOne.IsOne) return left;
+            if (right is Number rOne && rOne.Value.IsOne) return left;
 
             // 1 ^ x → 1
-            if (left is Fraction lOne && lOne.IsOne) return Fraction.One;
+            if (left is Number lOne && lOne.Value.IsOne)
+                return new Number(Fraction.One);
 
             // 0 ^ x → 0
-            if (left is Fraction lZero && lZero.IsZero) return Fraction.Zero;
+            if (left is Number lZero && lZero.Value.IsZero)
+                return new Number(Fraction.Zero);
 
             // a ^ b → a^b
-            if (left is Fraction a && right is Fraction b)
+            if (left is Number a && right is Number b && b.Value.IsInteger)
             {
-                if (b.Numerator > int.MaxValue || b.Numerator < int.MinValue)
+                if (b.Value.Numerator > int.MaxValue || b.Value.Numerator < int.MinValue)
                     return new Power(left, right);
 
-                return a.Pow((int)b.Numerator);
+                return new Number(a.Value.Pow((int)b.Value.Numerator));
             }
 
             return new Power(left, right);

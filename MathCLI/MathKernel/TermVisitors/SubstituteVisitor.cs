@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.Terms;
+﻿using MathCLI.MathKernel.Numbers;
+using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathNumerics;
 using System;
@@ -11,7 +12,7 @@ namespace MathCLI.MathKernel.TermVisitors
 {
     public class SubstituteVisitor : ITermVisitor<ITerm>
     {
-        private VariableContext _variables;
+        private readonly VariableContext _variables;
 
         public SubstituteVisitor(VariableContext variables)
         {
@@ -19,12 +20,12 @@ namespace MathCLI.MathKernel.TermVisitors
         }
 
 
-        public ITerm Visit(Fraction fraction) => fraction;
-        public ITerm Visit(Variable variable) => _variables.TryGetVariable(variable.Name, out var fraction) ? fraction! : variable;
+        public ITerm Visit(Number number) => number;
+        public ITerm Visit(Variable variable) => _variables.TryGetVariable(variable.Name, out var fraction) ? new Number(fraction!) : variable;
 
         public ITerm Visit(NegateTerm negate)
         {
-            var term = negate.Term.Accept(this);
+            var term = negate.InnerTerm.Accept(this);
 
             return new NegateTerm(term);
         }
