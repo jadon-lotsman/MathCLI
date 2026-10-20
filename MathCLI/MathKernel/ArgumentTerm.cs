@@ -6,6 +6,7 @@ using System.CommandLine;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathCLI.Extensions;
 
 namespace MathCLI.MathKernel
 {
@@ -38,17 +39,7 @@ namespace MathCLI.MathKernel
 
 
         public abstract T Accept<T>(ITermVisitor<T> visitor);
-
-        public override string ToString()
-        {
-            if (!Args.Any())
-                return Name;
-
-            if (IsInfix)
-                return "(" + string.Join($"{Name}", Args.Select(a => a.ToString())) + ")";
-
-            return $"{Name}({string.Join(", ", Args.Select(a => a.ToString()))})";
-        }
+        public override string ToString() => this.Render();
 
         private string DescribeArity(int min, int? max)
         {

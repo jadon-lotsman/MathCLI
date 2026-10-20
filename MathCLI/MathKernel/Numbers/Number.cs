@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.TermVisitors;
+﻿using MathCLI.Extensions;
+using MathCLI.MathKernel.TermVisitors;
 using MathCLI.MathNumerics;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,6 @@ namespace MathCLI.MathKernel.Numbers
         }
 
         public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
-        public override string ToString() => $"{Value}";
+        public override string ToString() => this.Render();
     }
 }

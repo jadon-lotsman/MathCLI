@@ -1,4 +1,5 @@
-﻿using MathCLI.MathKernel.TermVisitors;
+﻿using MathCLI.Extensions;
+using MathCLI.MathKernel.TermVisitors;
 using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,6 @@ namespace MathCLI.MathKernel.Terms
         }
 
         public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
-        public override string ToString() => $"-{InnerTerm}";
+        public override string ToString() => this.Render();
     }
 }

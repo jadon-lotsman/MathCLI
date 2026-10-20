@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MathCLI.MathKernel.TermVisitors;
+using MathCLI.Extensions;
 
 namespace MathCLI.MathSolver
 {
@@ -29,21 +30,7 @@ namespace MathCLI.MathSolver
             ReadResult read = _reader.Read(expression);
             ITerm term = _compiler.CompileDescent(read.Tokens);
 
-            var visitor = new SimplifyVisitor(context);
-
-            return [term.Accept(visitor).ToString()];
-
-            //var steps = new List<string>() { term.ToString() };
-            //while(!term.IsValue)
-            //{
-            //    term = term.ReduceStep(context);
-            //    steps.Add(term.ToString());
-            //}
-
-            //if (term.Execute(context).TryGetReduced(out var reduced))
-            //    steps.Add(reduced.ToString());
-
-            //return steps.ToArray();
+            return [term.Simplify().ToString()];
         }
     }
 }

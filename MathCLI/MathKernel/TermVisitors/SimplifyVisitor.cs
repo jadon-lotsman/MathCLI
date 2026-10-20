@@ -36,6 +36,14 @@ namespace MathCLI.MathKernel.TermVisitors
             if (term is Number a)
                 return new Number(-a.Value);
 
+            // -(a / b) → (-a) / b
+            if (term is Division div)
+                return new Division(new NegateTerm(div.Args[0]).Accept(this), div.Args[1]).Accept(this);
+
+            // -(a * b) → (-a) * b
+            if (term is Multiplication mul)
+                return new Multiplication(new NegateTerm(mul.Args[0]).Accept(this), mul.Args[1]).Accept(this);
+
             return new NegateTerm(term);
         }
 
@@ -60,7 +68,7 @@ namespace MathCLI.MathKernel.TermVisitors
 
             // x + x → 2x
             if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
-                return new Multiplication(new Number(Fraction.Two), left);
+                return new Multiplication(new Number(Fraction.Two), left).Accept(this);
 
             return new Addition(left, right);
         }
@@ -120,7 +128,7 @@ namespace MathCLI.MathKernel.TermVisitors
 
             // x * x → x^2
             if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
-                return new Power(left, new Number(Fraction.Two));
+                return new Power(left, new Number(Fraction.Two)).Accept(this);
 
             return new Multiplication(left, right);
         }

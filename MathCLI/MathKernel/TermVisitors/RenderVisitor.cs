@@ -20,8 +20,8 @@ namespace MathCLI.MathKernel.TermVisitors
         public string Visit(Variable variable) => variable.Name.ToString();
 
 
-        public string Visit(NegateTerm negate) 
-            => "-" + Render(negate.InnerTerm, negate.Precedence + 1);
+        public string Visit(NegateTerm negate)
+            => RenderNegate(negate);
         public string Visit(Addition addition)
             => RenderArgument(addition);
         public string Visit(Subtraction subtraction)
@@ -34,10 +34,12 @@ namespace MathCLI.MathKernel.TermVisitors
             => RenderArgument(power);
 
 
-        private string Render(ITerm term, int minPrec)
+        private string RenderNegate(NegateTerm negate)
         {
-            var inner = term.Accept(this);
-            return term.Precedence < minPrec ? $"({inner})" : inner;
+            var inner = negate.InnerTerm.Accept(this);
+            bool needParens = negate.InnerTerm.Precedence <= negate.Precedence || inner.StartsWith("-");
+
+            return needParens ? $"-({inner})" : $"-{inner}";
         }
 
         private string RenderArgument(ArgumentTerm term)
