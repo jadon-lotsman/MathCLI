@@ -8,17 +8,23 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Variables
 {
-    public class Variable : ITerm
+    public class Variable : Term
     {
-        public char Name { get; private set; }
-        public int Precedence => int.MaxValue;
+        public char Name { get; }
+        public override int Precedence => int.MaxValue;
 
         public Variable(char name)
         {
             Name = name;
         }
 
-        public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
-        public override string ToString() => this.Render();
+        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
+        public override bool Equals(Term? other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return other is Variable v && Name == v.Name;
+        }
+        public override int GetHashCode() => HashCode.Combine(typeof(Variable), Name);
     }
 }

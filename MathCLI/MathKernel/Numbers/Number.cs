@@ -9,17 +9,23 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.Numbers
 {
-    public class Number : ITerm
+    public class Number : Term
     {
         public Fraction Value { get; }
-        public int Precedence => int.MaxValue;
+        public override int Precedence => int.MaxValue;
 
         public Number(Fraction fraction)
         {
             Value = fraction;
         }
 
-        public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
-        public override string ToString() => this.Render();
+        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
+        public override bool Equals(Term? term)
+        {
+            if (term is null) return false;
+            if (ReferenceEquals(this, term)) return true;
+            return term is Number num && Value.Equals(num.Value);
+        }
+        public override int GetHashCode() => HashCode.Combine(typeof(Number), Value);
     }
 }

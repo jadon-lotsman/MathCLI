@@ -13,7 +13,7 @@ namespace MathCLI.MathKernel.Terms
         public override bool IsInfix => true;
         public override bool IsRightAssoc => false;
         public override int Precedence => 1;
-        public Addition(params ITerm[] args) : base("+", args, 2) { }
+        public Addition(params Term[] args) : base("+", args, 2) { }
 
         public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
     }

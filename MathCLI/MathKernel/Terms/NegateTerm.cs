@@ -10,17 +10,23 @@ using System.Xml.Linq;
 
 namespace MathCLI.MathKernel.Terms
 {
-    public class NegateTerm : ITerm
+    public class NegateTerm : Term
     {
-        public ITerm InnerTerm { get; private set; }
-        public int Precedence => 2;
+        public Term InnerTerm { get; }
+        public override int Precedence => 2;
 
-        public NegateTerm(ITerm inner)
+        public NegateTerm(Term inner)
         {
             InnerTerm = inner;
         }
 
-        public T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
-        public override string ToString() => this.Render();
+        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
+        public override bool Equals(Term? other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return other is NegateTerm n && InnerTerm.Equals(n.InnerTerm);
+        }
+        public override int GetHashCode() => HashCode.Combine(typeof(NegateTerm), InnerTerm);
     }
 }

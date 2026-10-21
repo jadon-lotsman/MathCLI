@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.TermVisitors
 {
-    public class SubstituteVisitor : ITermVisitor<ITerm>
+    public class SubstituteVisitor : ITermVisitor<Term>
     {
         private readonly VariableContext _variables;
 
@@ -20,17 +20,17 @@ namespace MathCLI.MathKernel.TermVisitors
         }
 
 
-        public ITerm Visit(Number number) => number;
-        public ITerm Visit(Variable variable) => _variables.TryGetVariable(variable.Name, out var fraction) ? new Number(fraction!) : variable;
+        public Term Visit(Number number) => number;
+        public Term Visit(Variable variable) => _variables.TryGetVariable(variable.Name, out var fraction) ? new Number(fraction!) : variable;
 
-        public ITerm Visit(NegateTerm negate)
+        public Term Visit(NegateTerm negate)
         {
             var term = negate.InnerTerm.Accept(this);
 
             return new NegateTerm(term);
         }
 
-        public ITerm Visit(Addition addition)
+        public Term Visit(Addition addition)
         {
             var left = addition.Args[0].Accept(this);
             var right = addition.Args[1].Accept(this);
@@ -38,7 +38,7 @@ namespace MathCLI.MathKernel.TermVisitors
             return new Addition(left, right);
         }
 
-        public ITerm Visit(Subtraction subtraction)
+        public Term Visit(Subtraction subtraction)
         {
             var left = subtraction.Args[0].Accept(this);
             var right = subtraction.Args[1].Accept(this);
@@ -46,7 +46,7 @@ namespace MathCLI.MathKernel.TermVisitors
             return new Subtraction(left, right);
         }
 
-        public ITerm Visit(Multiplication multiplication)
+        public Term Visit(Multiplication multiplication)
         {
             var left = multiplication.Args[0].Accept(this);
             var right = multiplication.Args[1].Accept(this);
@@ -54,7 +54,7 @@ namespace MathCLI.MathKernel.TermVisitors
             return new Multiplication(left, right);
         }
 
-        public ITerm Visit(Division division)
+        public Term Visit(Division division)
         {
             var left = division.Args[0].Accept(this);
             var right = division.Args[1].Accept(this);
@@ -62,7 +62,7 @@ namespace MathCLI.MathKernel.TermVisitors
             return new Division(left, right);
         }
 
-        public ITerm Visit(Power power)
+        public Term Visit(Power power)
         {
             var left = power.Args[0].Accept(this);
             var right = power.Args[1].Accept(this);

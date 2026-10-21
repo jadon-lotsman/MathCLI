@@ -21,7 +21,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         private IReadOnlyList<Token> tokens;
 
 
-        public ITerm CompileDescent(IReadOnlyList<Token> tokens)
+        public Term CompileDescent(IReadOnlyList<Token> tokens)
         {
             pos = 0;
             this.tokens = tokens;
@@ -30,14 +30,14 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         }
 
         // E -> T+- ... +-T
-        private ITerm GetExpression()
+        private Term GetExpression()
         {
-            ITerm a = GetTerm();
+            Term a = GetTerm();
 
             while (TryPeek(out Token expToken) && expToken.IsAnyMatch(Op.Plus, Op.Minus))
             {
                 Advance();
-                ITerm b = GetTerm();
+                Term b = GetTerm();
 
                 a = expToken.IsMatch(Op.Plus)
                     ? new Addition(a, b)
@@ -48,14 +48,14 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         }
 
         // T -> A*/ ... */A
-        private ITerm GetTerm()
+        private Term GetTerm()
         {
-            ITerm a = GetUnary();
+            Term a = GetUnary();
 
             while (TryPeek(out Token termToken) && termToken.IsAnyMatch(Op.Multiply, Op.Divide))
             {
                 Advance();
-                ITerm b = GetUnary();
+                Term b = GetUnary();
 
                 a = termToken.IsMatch(Op.Multiply)
                     ? new Multiplication(a, b)
@@ -66,7 +66,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         }
 
         // U -> -U | P
-        private ITerm GetUnary()
+        private Term GetUnary()
         {
             if (TryPeek(out Token unarToken) && unarToken.IsMatch(Op.Minus))
             {
@@ -78,14 +78,14 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         }
 
         // P -> abcToken(E, E, ...) ^ P
-        private ITerm GetPower()
+        private Term GetPower()
         {
-            ITerm a = GetAbc();
+            Term a = GetAbc();
 
             if (TryPeek(out Token powToken) && powToken.IsMatch(Op.Power))
             {
                 Advance();
-                ITerm b = GetUnary();
+                Term b = GetUnary();
                 return new Power(a, b);
             }
 
@@ -93,7 +93,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         }
 
         // A -> abc(E, E, ...) | F
-        private ITerm GetAbc()
+        private Term GetAbc()
         {
             // Get abcToken token
             if (!TryPeek(out Token abcToken) || abcToken.Kind != TokenType.Function)
@@ -107,7 +107,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
                 throw new Exception("Need bracket after function");
 
             // Get function arguments
-            ITerm[] args = GetCommaArgs();
+            Term[] args = GetCommaArgs();
 
             // Move through close bracket
             if (!TryAdvance(out Token close) || close.Kind != TokenType.CloseBracket)
@@ -121,12 +121,12 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         }
 
         // F -> N | V | (E)
-        private ITerm GetFactor()
+        private Term GetFactor()
         {
             if (!TryPeek(out Token factorToken))
                 throw new Exception("Unexpected end of expression");
 
-            ITerm factor;
+            Term factor;
             switch (factorToken.Kind)
             {
                 case TokenType.OpenBracket:
@@ -159,9 +159,9 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
             return factor;
         }
 
-        private ITerm[] GetCommaArgs()
+        private Term[] GetCommaArgs()
         {
-            var args = new List<ITerm>();
+            var args = new List<Term>();
 
             if (TryPeek(out Token first) && first.Kind == TokenType.CloseBracket)
                 return args.ToArray();

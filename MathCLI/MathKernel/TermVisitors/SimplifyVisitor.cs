@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.TermVisitors
 {
-    public class SimplifyVisitor : ITermVisitor<ITerm>
+    public class SimplifyVisitor : ITermVisitor<Term>
     {
         private readonly VariableContext? _variables;
 
@@ -20,11 +20,11 @@ namespace MathCLI.MathKernel.TermVisitors
         }
 
 
-        public ITerm Visit(Number number) => number;
-        public ITerm Visit(Variable variable) => _variables != null && _variables.TryGetVariable(variable.Name, out var fraction) ? new Number(fraction!) : variable;
+        public Term Visit(Number number) => number;
+        public Term Visit(Variable variable) => _variables != null && _variables.TryGetVariable(variable.Name, out var fraction) ? new Number(fraction!) : variable;
 
 
-        public ITerm Visit(NegateTerm negate)
+        public Term Visit(NegateTerm negate)
         {
             var term = negate.InnerTerm.Accept(this);
 
@@ -47,7 +47,7 @@ namespace MathCLI.MathKernel.TermVisitors
             return new NegateTerm(term);
         }
 
-        public ITerm Visit(Addition addition)
+        public Term Visit(Addition addition)
         {
             var left = addition.Args[0].Accept(this);
             var right = addition.Args[1].Accept(this);
@@ -67,13 +67,13 @@ namespace MathCLI.MathKernel.TermVisitors
                 return new Number(a.Value + b.Value);
 
             // x + x → 2x
-            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
+            if (left == right)
                 return new Multiplication(new Number(Fraction.Two), left).Accept(this);
 
             return new Addition(left, right);
         }
 
-        public ITerm Visit(Subtraction subtraction)
+        public Term Visit(Subtraction subtraction)
         {
             var left = subtraction.Args[0].Accept(this);
             var right = subtraction.Args[1].Accept(this);
@@ -91,7 +91,7 @@ namespace MathCLI.MathKernel.TermVisitors
                 return new NegateTerm(right).Accept(this);
 
             // x - x → 0
-            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
+            if (left == right)
                 return new Number(Fraction.Zero);
 
             // a - b → a-b
@@ -102,7 +102,7 @@ namespace MathCLI.MathKernel.TermVisitors
         }
 
 
-        public ITerm Visit(Multiplication multiplication)
+        public Term Visit(Multiplication multiplication)
         {
             var left = multiplication.Args[0].Accept(this);
             var right = multiplication.Args[1].Accept(this);
@@ -127,13 +127,13 @@ namespace MathCLI.MathKernel.TermVisitors
                 return new Number(a.Value * b.Value);
 
             // x * x → x^2
-            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
+            if (left == right)
                 return new Power(left, new Number(Fraction.Two)).Accept(this);
 
             return new Multiplication(left, right);
         }
 
-        public ITerm Visit(Division division)
+        public Term Visit(Division division)
         {
             var left = division.Args[0].Accept(this);
             var right = division.Args[1].Accept(this);
@@ -150,7 +150,7 @@ namespace MathCLI.MathKernel.TermVisitors
                 return new Number(Fraction.Zero);
 
             // x / x → 1 
-            if (left is Variable lVar && right is Variable rVar && lVar.Name == rVar.Name)
+            if (left == right)
                 return new Number(Fraction.One);
 
             // a / b → a/b
@@ -161,7 +161,7 @@ namespace MathCLI.MathKernel.TermVisitors
         }
 
 
-        public ITerm Visit(Power power)
+        public Term Visit(Power power)
         {
             var left = power.Args[0].Accept(this);
             var right = power.Args[1].Accept(this);

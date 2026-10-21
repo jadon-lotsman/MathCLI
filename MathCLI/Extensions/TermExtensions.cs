@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace MathCLI.Extensions
 {
-    public static class ITermExtensions
+    public static class TermExtensions
     {
-        public static ITerm Simplify(this ITerm term, VariableContext variables)
+        public static Term Simplify(this Term term, VariableContext variables)
             => term.Accept(new SimplifyVisitor(variables));
 
-        public static ITerm Substitute(this ITerm term, VariableContext variables)
+        public static Term Substitute(this Term term, VariableContext variables)
             => term.Accept(new SubstituteVisitor(variables));
 
-        public static string Render(this ITerm term)
+        public static string Render(this Term term)
             => term.Accept(new RenderVisitor());
     }
 }

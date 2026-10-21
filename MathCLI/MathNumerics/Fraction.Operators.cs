@@ -20,10 +20,7 @@ namespace MathCLI.MathNumerics
             return Numerator * other.Denominator == other.Numerator * Denominator;
         }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as Fraction);
-        }
+        public override bool Equals(object? obj) => Equals(obj as Fraction);
 
         public override int GetHashCode()
         {
