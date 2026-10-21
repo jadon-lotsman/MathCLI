@@ -10,7 +10,7 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Power : ArgumentTerm
     {
-        public override bool IsInfix => true;
+        public override Notation Notation => Notation.Infix;
         public override bool IsRightAssoc => true;
         public override int Precedence => 4;
         public Power(params Term[] args) : base("^", args, 2) { }

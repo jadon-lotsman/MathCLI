@@ -10,7 +10,7 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Multiplication : ArgumentTerm
     {
-        public override bool IsInfix => true;
+        public override Notation Notation => Notation.Infix;
         public override bool IsRightAssoc => false;
         public override int Precedence => 3;
         public Multiplication(params Term[] args) : base("*", args, 2) { }

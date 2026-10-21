@@ -10,7 +10,7 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Addition : ArgumentTerm
     {
-        public override bool IsInfix => true;
+        public override Notation Notation => Notation.Infix;
         public override bool IsRightAssoc => false;
         public override int Precedence => 1;
         public Addition(params Term[] args) : base("+", args, 2) { }

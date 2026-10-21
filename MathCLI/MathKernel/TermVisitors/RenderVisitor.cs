@@ -16,12 +16,12 @@ namespace MathCLI.MathKernel.TermVisitors
         public RenderVisitor() { }
 
 
-        public string Visit(Number number) => number.Value.ToString();
+        public string Visit(Number number)  => number.Value.ToString();
         public string Visit(Variable variable) => variable.Name.ToString();
 
 
         public string Visit(NegateTerm negate)
-            => RenderNegate(negate);
+            => RenderArgument(negate);
         public string Visit(Addition addition)
             => RenderArgument(addition);
         public string Visit(Subtraction subtraction)
@@ -34,17 +34,38 @@ namespace MathCLI.MathKernel.TermVisitors
             => RenderArgument(power);
 
 
-        private string RenderNegate(NegateTerm negate)
-        {
-            var inner = negate.InnerTerm.Accept(this);
-            bool needParens = negate.InnerTerm.Precedence <= negate.Precedence || inner.StartsWith("-");
-
-            return needParens ? $"-({inner})" : $"-{inner}";
-        }
-
         private string RenderArgument(ArgumentTerm term)
         {
-            return term.IsInfix ? RenderInfix(term) : RenderFunction(term);
+            return term.Notation switch
+            {
+                Notation.Function   => RenderFunction(term),
+                Notation.Prefix     => RenderPrefix(term),
+                Notation.Infix      => RenderInfix(term),
+                Notation.Postfix    => RenderPostfix(term),
+            };
+        }
+
+        private string RenderFunction(ArgumentTerm term)
+        {
+            var sb = new StringBuilder();
+            sb.Append(term.Name).Append('(');
+
+            for (int i = 0; i < term.Args.Length; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(term.Args[i].Accept(this));
+            }
+
+            sb.Append(')');
+            return sb.ToString();
+        }
+
+        private string RenderPrefix(ArgumentTerm term)
+        {
+            var inner = term.Args[0].Accept(this);
+            bool needBrackets = term.Args[0].Precedence <= term.Precedence || inner.StartsWith("-");
+
+            return needBrackets ? $"{term.Name}({inner})" : $"{term.Name}{inner}";
         }
 
         private string RenderInfix(ArgumentTerm term)
@@ -71,19 +92,12 @@ namespace MathCLI.MathKernel.TermVisitors
             return sb.ToString();
         }
 
-        private string RenderFunction(ArgumentTerm term)
+        private string RenderPostfix(ArgumentTerm term)
         {
-            var sb = new StringBuilder();
-            sb.Append(term.Name).Append('(');
+            var inner = term.Args[0].Accept(this);
+            bool needBrackets = term.Args[0].Precedence < term.Precedence;
 
-            for (int i = 0; i < term.Args.Length; i++)
-            {
-                if (i > 0) sb.Append(", ");
-                sb.Append(term.Args[i].Accept(this));
-            }
-
-            sb.Append(')');
-            return sb.ToString();
+            return needBrackets ? $"({inner}){term.Name}" : $"{inner}{term.Name}";
         }
     }
 }

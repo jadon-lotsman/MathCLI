@@ -25,7 +25,7 @@ namespace MathCLI.MathKernel.TermVisitors
 
         public Term Visit(NegateTerm negate)
         {
-            var term = negate.InnerTerm.Accept(this);
+            var term = negate.Args[0].Accept(this);
 
             return new NegateTerm(term);
         }

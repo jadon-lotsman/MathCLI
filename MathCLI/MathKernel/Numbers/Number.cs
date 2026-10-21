@@ -24,7 +24,7 @@ namespace MathCLI.MathKernel.Numbers
         {
             if (term is null) return false;
             if (ReferenceEquals(this, term)) return true;
-            return term is Number num && Value.Equals(num.Value);
+            return term is Number num && Value == num.Value;
         }
         public override int GetHashCode() => HashCode.Combine(typeof(Number), Value);
     }

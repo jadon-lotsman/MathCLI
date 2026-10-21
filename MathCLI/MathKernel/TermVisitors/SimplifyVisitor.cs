@@ -26,11 +26,11 @@ namespace MathCLI.MathKernel.TermVisitors
 
         public Term Visit(NegateTerm negate)
         {
-            var term = negate.InnerTerm.Accept(this);
+            var term = negate.Args[0].Accept(this);
 
             // -(-x) → x
             if (term is NegateTerm inner)
-                return inner.InnerTerm;
+                return inner.Args[0];
 
             // -(a) → -a
             if (term is Number a)
@@ -54,7 +54,7 @@ namespace MathCLI.MathKernel.TermVisitors
 
             // x + (-y) → x - y
             if (right is NegateTerm neg)
-                return new Subtraction(left, neg.InnerTerm).Accept(this);
+                return new Subtraction(left, neg.Args[0]).Accept(this);
 
             // x + 0 → x
             if (right is Number rZero && rZero.Value.IsZero) return left;
@@ -80,7 +80,7 @@ namespace MathCLI.MathKernel.TermVisitors
 
             // a - (-b) → a + b
             if (right is NegateTerm neg)
-                return new Addition(left, neg.InnerTerm).Accept(this);
+                return new Addition(left, neg.Args[0]).Accept(this);
 
             // x - 0 → x
             if (right is Number rZero && rZero.Value.IsZero)

@@ -16,15 +16,15 @@ namespace MathCLI.MathKernel
         public Term[] Args { get; }
         public int MinArgs { get; }
         public int? MaxArgs { get; }
-        public abstract bool IsInfix { get; }
+        public abstract Notation Notation { get; }
         public abstract bool IsRightAssoc { get; }
 
 
-        public ArgumentTerm(string name, Term[] args, int minArgs) : this(name, args, minArgs, minArgs) { }
+        public ArgumentTerm(string name, Term[] args, int exArgs) : this(name, args, exArgs, exArgs) { }
 
         public ArgumentTerm(string name, Term[] args, int minArgs, int? maxArgs)
         {
-            if (IsInfix && args.Length < 2)
+            if (Notation == Notation.Infix && args.Length < 2)
                 throw new InvalidOperationException($"Infix term '{name}' requires at least 2 args, got {args.Length}");
 
             if (args.Length < minArgs || (maxArgs.HasValue && args.Length > maxArgs.Value))

@@ -10,7 +10,7 @@ namespace MathCLI.MathKernel.Terms
 {
     public class Subtraction : ArgumentTerm
     {
-        public override bool IsInfix => true;
+        public override Notation Notation => Notation.Infix;
         public override bool IsRightAssoc => false;
         public override int Precedence => 1;
         public Subtraction(params Term[] args) : base("-", args, 2) { }
