@@ -25,12 +25,12 @@ namespace MathCLI.MathSolver
         }
 
 
-        public string[] Solve(string expression, VariableContext context, SolverMode mode = SolverMode.Value)
+        public string[] Solve(string expression, VariableContext variables, SolverMode mode = SolverMode.Value)
         {
             ReadResult read = _reader.Read(expression);
             ITerm term = _compiler.CompileDescent(read.Tokens);
 
-            return [term.Simplify().ToString()];
+            return [term.Simplify(variables).ToString()];
         }
     }
 }

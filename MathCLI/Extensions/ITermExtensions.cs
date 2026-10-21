@@ -11,8 +11,8 @@ namespace MathCLI.Extensions
 {
     public static class ITermExtensions
     {
-        public static ITerm Simplify(this ITerm term)
-            => term.Accept(new SimplifyVisitor());
+        public static ITerm Simplify(this ITerm term, VariableContext variables)
+            => term.Accept(new SimplifyVisitor(variables));
 
         public static ITerm Substitute(this ITerm term, VariableContext variables)
             => term.Accept(new SubstituteVisitor(variables));
