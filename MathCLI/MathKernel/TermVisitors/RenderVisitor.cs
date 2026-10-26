@@ -15,7 +15,6 @@ namespace MathCLI.MathKernel.TermVisitors
     {
         public RenderVisitor() { }
 
-
         public string Visit(Number number)  => number.Value.ToString();
         public string Visit(Variable variable) => variable.Name.ToString();
 
@@ -34,16 +33,13 @@ namespace MathCLI.MathKernel.TermVisitors
             => RenderArgument(power);
 
 
-        private string RenderArgument(ArgumentTerm term)
+        private string RenderArgument(ArgumentTerm term) => term.Notation switch
         {
-            return term.Notation switch
-            {
-                Notation.Function   => RenderFunction(term),
-                Notation.Prefix     => RenderPrefix(term),
-                Notation.Infix      => RenderInfix(term),
-                Notation.Postfix    => RenderPostfix(term),
-            };
-        }
+            Notation.Function   => RenderFunction(term),
+            Notation.Prefix     => RenderPrefix(term),
+            Notation.Infix      => RenderInfix(term),
+            Notation.Postfix    => RenderPostfix(term),
+        };
 
         private string RenderFunction(ArgumentTerm term)
         {

@@ -106,7 +106,7 @@ namespace MathCLI.Tests
             Assert.Empty(read.UnknownTokens);
 
             var term = compiler.CompileDescent(read.Tokens);
-            var actual = term.Accept(new SimplifyVisitor());
+            var actual = term.Accept(new RuledVisitor());
 
             if (actual is Number num)
                 Assert.Equal(expected, (double)num.Value, precision: 5);

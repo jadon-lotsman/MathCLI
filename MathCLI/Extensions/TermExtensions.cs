@@ -12,10 +12,10 @@ namespace MathCLI.Extensions
     public static class TermExtensions
     {
         public static Term Simplify(this Term term, VariableContext variables)
-            => term.Accept(new SimplifyVisitor(variables));
+            => term.Accept(new RuledVisitor(variables));
 
-        public static Term Substitute(this Term term, VariableContext variables)
-            => term.Accept(new SubstituteVisitor(variables));
+        //public static Term Substitute(this Term term, VariableContext variables)
+        //    => term.Accept(new SubstituteVisitor(variables));
 
         public static string Render(this Term term)
             => term.Accept(new RenderVisitor());

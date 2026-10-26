@@ -1,4 +1,5 @@
 ﻿using MathCLI.MathKernel.Numbers;
+using MathCLI.MathKernel.Rules;
 using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathNumerics;
@@ -10,13 +11,17 @@ using System.Threading.Tasks;
 
 namespace MathCLI.MathKernel.TermVisitors
 {
-    public class SimplifyVisitor : ITermVisitor<Term>
+    public class RuledVisitor : ITermVisitor<Term>
     {
         private readonly VariableContext? _variables;
 
-        public SimplifyVisitor(VariableContext? variables=null)
+        private readonly RuleGroup<Addition> _addRules;
+
+        public RuledVisitor(VariableContext? variables=null)
         {
             _variables = variables;
+
+            _addRules = new RuleGroup<Addition>(new() { new AddZeroRule(), new AddNegateRule(), new AddNumbersRule(), new AddEqualsRule() });
         }
 
 
@@ -52,25 +57,10 @@ namespace MathCLI.MathKernel.TermVisitors
             var left = addition.Args[0].Accept(this);
             var right = addition.Args[1].Accept(this);
 
-            // x + (-y) → x - y
-            if (right is NegateTerm neg)
-                return new Subtraction(left, neg.Args[0]).Accept(this);
+            var current = new Addition(left, right);
 
-            // x + 0 → x
-            if (right is Number rZero && rZero.Value.IsZero) return left;
-
-            // 0 + x → x
-            if (left is Number lZero && lZero.Value.IsZero) return right;
-
-            // 2 + 3 → 5
-            if (left is Number a && right is Number b)
-                return new Number(a.Value + b.Value);
-
-            // x + x → 2x
-            if (left == right)
-                return new Multiplication(new Number(Fraction.Two), left).Accept(this);
-
-            return new Addition(left, right);
+            var next = _addRules.Apply(current, out _);
+            return next == null ? current : next.Accept(this);
         }
 
         public Term Visit(Subtraction subtraction)
