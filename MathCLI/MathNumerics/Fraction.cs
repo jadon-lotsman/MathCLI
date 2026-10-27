@@ -1,5 +1,5 @@
 ﻿using MathCLI.MathKernel;
-using MathCLI.MathKernel.TermVisitors;
+
 using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;

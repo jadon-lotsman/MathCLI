@@ -1,5 +1,5 @@
 ﻿using MathCLI.Extensions;
-using MathCLI.MathKernel.TermVisitors;
+
 using MathCLI.MathNumerics;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,6 @@ namespace MathCLI.MathKernel.Numbers
             Value = fraction;
         }
 
-        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
         public override bool Equals(Term? term)
         {
             if (term is null) return false;

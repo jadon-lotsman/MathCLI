@@ -1,14 +1,15 @@
-﻿using MathCLI.MathSyntax.ExpressionCompiler;
-using MathCLI.MathSyntax.ExpressionReader;
+﻿using MathCLI.Extensions;
 using MathCLI.MathKernel;
+using MathCLI.MathKernel.Terms;
 using MathCLI.MathKernel.Variables;
+using MathCLI.MathSyntax.ExpressionCompiler;
+using MathCLI.MathSyntax.ExpressionReader;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MathCLI.MathKernel.TermVisitors;
-using MathCLI.Extensions;
+using System.Xml.Linq;
 
 namespace MathCLI.MathSolver
 {
@@ -30,7 +31,9 @@ namespace MathCLI.MathSolver
             ReadResult read = _reader.Read(expression);
             Term term = _compiler.CompileDescent(read.Tokens);
 
-            return [term.Simplify(variables).ToString()];
+            var result = term.Substitute(variables).Simplify();
+
+            return [TermRender.Render(result)];
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using MathCLI.MathKernel.Variables;
-using MathCLI.MathKernel.TermVisitors;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +15,6 @@ namespace MathCLI.MathKernel.Terms
         public override int Precedence => 2;
         public NegateTerm(params Term[] args) : base("~", args, exArgs: 1) { }
 
-        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
+        public override ArgumentTerm WithArgs(Term[] args) => new NegateTerm(args);
     }
 }

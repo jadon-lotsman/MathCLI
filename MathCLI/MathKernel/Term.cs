@@ -1,5 +1,5 @@
 ﻿using MathCLI.Extensions;
-using MathCLI.MathKernel.TermVisitors;
+
 using MathCLI.MathKernel.Variables;
 using System;
 using System.Collections.Generic;
@@ -13,9 +13,7 @@ namespace MathCLI.MathKernel
     {
         public abstract int Precedence { get; }
 
-        public abstract T Accept<T>(ITermVisitor<T> visitor);
         public override string ToString() => this.Render();
-
         public abstract bool Equals(Term? other);
         public override bool Equals(object? obj) => Equals(obj as Term);
         public abstract override int GetHashCode();

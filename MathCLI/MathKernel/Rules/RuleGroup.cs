@@ -4,30 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathKernel
+namespace MathCLI.MathKernel.Rules
 {
-    public class RuleGroup<T> where T : Term
+    public class RuleGroup<T> : IRuleGroup where T : Term
     {
-        private readonly List<TermRule<T>> _rules;
+        private readonly TermRule<T>[] _rules;
+        public Type TargetType => typeof(T);
 
         public RuleGroup(List<TermRule<T>> rules)
         {
-            _rules = rules;
+            _rules = rules.ToArray();
         }
 
-        public Term? Apply(T term, out string? ruleName)
+        public Term? Apply(Term term, out string? rul)
         {
-            ruleName = default;
-
-            if (!_rules.Any())
-                return null;
+            rul = default;
 
             foreach (var rule in _rules)
             {
                 var result = rule.Apply(term);
                 if (result != null)
                 {
-                    ruleName = rule.Name;
+                    rul = rule.Name;
                     return result;
                 }
             }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathKernel
+namespace MathCLI.MathKernel.Rules
 {
     public abstract class TermRule<T> where T : Term
     {

@@ -1,5 +1,4 @@
 ﻿using MathCLI.MathKernel.Variables;
-using MathCLI.MathKernel.TermVisitors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +14,6 @@ namespace MathCLI.MathKernel.Terms
         public override int Precedence => 3;
         public Division(params Term[] args) : base("/", args, 2) { }
 
-        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
+        public override ArgumentTerm WithArgs(Term[] args) => new Division(args);
     }
 }

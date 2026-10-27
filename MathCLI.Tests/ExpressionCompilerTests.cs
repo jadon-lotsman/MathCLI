@@ -1,6 +1,6 @@
+using MathCLI.Extensions;
 using MathCLI.MathKernel;
 using MathCLI.MathKernel.Numbers;
-using MathCLI.MathKernel.TermVisitors;
 using MathCLI.MathKernel.Variables;
 using MathCLI.MathNumerics;
 using MathCLI.MathSyntax.ExpressionCompiler;
@@ -106,7 +106,7 @@ namespace MathCLI.Tests
             Assert.Empty(read.UnknownTokens);
 
             var term = compiler.CompileDescent(read.Tokens);
-            var actual = term.Accept(new RuledVisitor());
+            var actual = term.Simplify();
 
             if (actual is Number num)
                 Assert.Equal(expected, (double)num.Value, precision: 5);

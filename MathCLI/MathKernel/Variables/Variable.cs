@@ -1,5 +1,5 @@
 ﻿using MathCLI.Extensions;
-using MathCLI.MathKernel.TermVisitors;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,6 @@ namespace MathCLI.MathKernel.Variables
             Name = name;
         }
 
-        public override T Accept<T>(ITermVisitor<T> visitor) => visitor.Visit(this);
         public override bool Equals(Term? other)
         {
             if (other is null) return false;

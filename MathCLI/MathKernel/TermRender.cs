@@ -9,39 +9,33 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathKernel.TermVisitors
+namespace MathCLI.MathKernel
 {
-    public class RenderVisitor : ITermVisitor<string>
+    public static class TermRender
     {
-        public RenderVisitor() { }
+        public static string Render(Term term)
+        {
+            if (term is null) throw new ArgumentNullException(nameof(term));
 
-        public string Visit(Number number)  => number.Value.ToString();
-        public string Visit(Variable variable) => variable.Name.ToString();
+            return term switch
+            {
+                Number number       => number.Value.ToString(),
+                Variable variable   => variable.Name.ToString(),
+                ArgumentTerm arg    => RenderArgument(arg),
+                _ => throw new NotSupportedException($"Cannot render term of type {term.GetType().Name}")
+            };
+        }
 
-
-        public string Visit(NegateTerm negate)
-            => RenderArgument(negate);
-        public string Visit(Addition addition)
-            => RenderArgument(addition);
-        public string Visit(Subtraction subtraction)
-            => RenderArgument(subtraction);
-        public string Visit(Multiplication multiplication)
-            => RenderArgument(multiplication);
-        public string Visit(Division division)
-            => RenderArgument(division);
-        public string Visit(Power power)
-            => RenderArgument(power);
-
-
-        private string RenderArgument(ArgumentTerm term) => term.Notation switch
+        private static string RenderArgument(ArgumentTerm term) => term.Notation switch
         {
             Notation.Function   => RenderFunction(term),
             Notation.Prefix     => RenderPrefix(term),
             Notation.Infix      => RenderInfix(term),
             Notation.Postfix    => RenderPostfix(term),
+            _ => throw new NotSupportedException($"Unknown notation: {term.Notation}")
         };
 
-        private string RenderFunction(ArgumentTerm term)
+        private static string RenderFunction(ArgumentTerm term)
         {
             var sb = new StringBuilder();
             sb.Append(term.Name).Append('(');
@@ -49,22 +43,23 @@ namespace MathCLI.MathKernel.TermVisitors
             for (int i = 0; i < term.Args.Length; i++)
             {
                 if (i > 0) sb.Append(", ");
-                sb.Append(term.Args[i].Accept(this));
+                sb.Append(Render(term.Args[i]));
             }
 
             sb.Append(')');
             return sb.ToString();
         }
 
-        private string RenderPrefix(ArgumentTerm term)
+        private static string RenderPrefix(ArgumentTerm term)
         {
-            var inner = term.Args[0].Accept(this);
-            bool needBrackets = term.Args[0].Precedence <= term.Precedence || inner.StartsWith("-");
+            var inner = Render(term.Args[0]);
+            bool needBrackets = term.Args[0].Precedence <= term.Precedence
+                                || inner.StartsWith("-");
 
             return needBrackets ? $"{term.Name}({inner})" : $"{term.Name}{inner}";
         }
 
-        private string RenderInfix(ArgumentTerm term)
+        private static string RenderInfix(ArgumentTerm term)
         {
             var sb = new StringBuilder();
 
@@ -77,7 +72,7 @@ namespace MathCLI.MathKernel.TermVisitors
                     ? term.Precedence + (term.IsRightAssoc ? 1 : 0)
                     : term.Precedence + (term.IsRightAssoc ? 0 : 1);
 
-                var inner = term.Args[i].Accept(this);
+                var inner = Render(term.Args[i]);
 
                 bool needParens = term.Args[i].Precedence < minPrec
                     || (i > 0 && inner.StartsWith("-"));
@@ -88,9 +83,9 @@ namespace MathCLI.MathKernel.TermVisitors
             return sb.ToString();
         }
 
-        private string RenderPostfix(ArgumentTerm term)
+        private static string RenderPostfix(ArgumentTerm term)
         {
-            var inner = term.Args[0].Accept(this);
+            var inner = Render(term.Args[0]);
             bool needBrackets = term.Args[0].Precedence < term.Precedence;
 
             return needBrackets ? $"({inner}){term.Name}" : $"{inner}{term.Name}";

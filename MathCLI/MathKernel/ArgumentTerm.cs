@@ -1,5 +1,4 @@
 ﻿using MathCLI.MathKernel.Variables;
-using MathCLI.MathKernel.TermVisitors;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -36,6 +35,7 @@ namespace MathCLI.MathKernel
             MaxArgs = maxArgs;
         }
 
+        public abstract ArgumentTerm WithArgs(Term[] args);
 
         public override bool Equals(Term? term)
         {
