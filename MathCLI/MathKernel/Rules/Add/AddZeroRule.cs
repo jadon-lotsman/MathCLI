@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathCLI.MathKernel.Rules
+namespace MathCLI.MathKernel.Rules.Add
 {
     public class AddZeroRule : TermRule<Addition>
     {
