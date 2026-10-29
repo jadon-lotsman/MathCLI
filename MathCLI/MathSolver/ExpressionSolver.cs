@@ -31,9 +31,22 @@ namespace MathCLI.MathSolver
             ReadResult read = _reader.Read(expression);
             Term term = _compiler.CompileDescent(read.Tokens);
 
-            var result = term.Substitute(variables).Simplify();
+            term = term.Substitute(variables);
 
-            return [TermRender.Render(result)];
+            if (mode == SolverMode.Value)
+                return [term.Simplify().ToString()];
+
+            var result = new List<string>();
+            while (true)
+            {
+                if (!term.TrySimplifyStep(out var r))
+                    break;
+
+                result.Add(r.ToString());
+                term = r;
+            }
+
+            return result.ToArray(); ;
         }
     }
 }
