@@ -75,18 +75,15 @@ namespace MathCLI.Extensions
 
 
             var rules = new RuleContext(_negateRules, _addRules, _subRules, _mulRules, _divRules, _powRules);
-
-            var t = TermTraversal.BottomUp(term, t =>
-            {
-                var result = rules.Apply(t, out _);
-                return result ?? t;
-            });
-
-            return t;
+            TermTraversal.TryBottomUpAll(term, t => rules.Apply(t, out _), out var result);
+            return result;
         }
 
         public static Term Substitute(this Term term, VariableContext variables)
-            => TermTraversal.BottomUp(term, n => n is Variable v && variables.TryGetVariable(v.Name, out var r) ? new Number(r) : n);
+        {
+            TermTraversal.TryBottomUpAll(term, t => t is Variable v && variables.TryGetVariable(v.Name, out var value) ? new Number(value!) : null, out var result);
+            return result;
+        }
 
         public static string Render(this Term term)
             => TermRender.Render(term);

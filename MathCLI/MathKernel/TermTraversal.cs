@@ -8,52 +8,77 @@ namespace MathCLI.MathKernel
 {
     public static class TermTraversal
     {
-        public static Term BottomUp(Term source, Func<Term, Term> func)
+        public static bool TryBottomUpAll(Term source, Func<Term, Term?> func, out Term result)
         {
-            if (source is not ArgumentTerm term) return func(source);
+            bool changed = false;
 
-            var length = term.Args.Length;
-            var newArgs = new Term[length];
-            var changed = false;
-            for (int i = 0; i < length; i++)
+            if (source is ArgumentTerm term)
             {
-                newArgs[i] = BottomUp(term.Args[i], func);
-
-                if (!ReferenceEquals(newArgs[i], term.Args[i]))
-                    changed = true;
-            }
-
-            if (changed)
-                return func(term.WithArgs(newArgs));
-            
-            return func(source);
-        }
-
-        public static Term BottomUpStep(Term source, Func<Term, Term> func)
-        {
-            if (source is not ArgumentTerm term) return func(source);
-
-            var length = term.Args.Length;
-            var newArgs = new Term[length];
-            var changed = false;
-            for (int i = 0; i < length; i++)
-            {
-                newArgs[i] = BottomUpStep(term.Args[i], func);
-
-                if (!ReferenceEquals(newArgs[i], term.Args[i]))
+                var args = term.Args;
+                Term[]? newArgs = null;
+                for (int i = 0; i < args.Length; i++)
                 {
-                    changed = true;
-                    for (int j = 0; j < length; j++)
-                        newArgs[j] = i == j ? newArgs[i] : term.Args[j];
+                    if (TryBottomUpAll(args[i], func, out var newChild))
+                    {
+                        if (newArgs == null)
+                        {
+                            newArgs = new Term[args.Length];
+                            for (int j = 0; j < i; j++)
+                                newArgs[j] = args[j];
+                        }
 
-                    break;
+                        newArgs[i] = newChild;
+                    }
+                    else if (newArgs != null)
+                    {
+                        newArgs[i] = args[i];
+                    }
+                }
+
+                if (newArgs != null)
+                {
+                    source = term.WithArgs(newArgs);
+                    changed = true;
                 }
             }
 
-            if (changed)
-                return term.WithArgs(newArgs);
+            if (func(source) is Term hit)
+            {
+                result = hit;
+                return true;
+            }
 
-            return func(source);
+            result = source;
+            return changed;
+        }
+
+        public static bool TryBottomUpStep(Term source, Func<Term, Term?> func, out Term result)
+        {
+            if (source is ArgumentTerm term)
+            {
+                var args = term.Args;
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if (TryBottomUpStep(args[i], func, out var newChild))
+                    {
+                        var newArgs = new Term[args.Length];
+                        for (int j = 0; j < args.Length; j++)
+                            newArgs[j] = j == i ? newChild : args[j];
+
+                        result = term.WithArgs(newArgs);
+                        return true;
+                    }
+                }
+            }
+
+            if (func(source) is Term hit)
+            {
+                result = hit;
+                return true;
+            }
+
+            result = source;
+            return false;
         }
     }
 }
