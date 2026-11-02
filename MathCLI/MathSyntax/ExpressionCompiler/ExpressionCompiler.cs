@@ -1,32 +1,36 @@
 ﻿using MathCLI.Extensions;
+using MathCLI.MathKernel;
+using MathCLI.MathKernel.Numbers;
+using MathCLI.MathKernel.Terms;
+using MathCLI.MathKernel.Variables;
+using MathCLI.MathNumerics;
 using MathCLI.MathSyntax.ExpressionReader;
 using MathCLI.MathSyntax.ExpressionReader.Enums;
-using MathCLI.MathKernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using MathCLI.MathKernel.Terms;
-using MathCLI.MathKernel.Variables;
-using MathCLI.MathNumerics;
-using MathCLI.MathKernel.Numbers;
 
 namespace MathCLI.MathSyntax.ExpressionCompiler
 {
     public class ExpressionCompiler
     {
         private int pos;
-        private IReadOnlyList<Token> tokens;
+        private ReadResult read;
 
 
-        public Term CompileDescent(IReadOnlyList<Token> tokens)
+        public Term CompileDescent(ReadResult readResult)
         {
             pos = 0;
-            this.tokens = tokens;
+            read = readResult;
+            var term = GetExpression();
 
-            return GetExpression();
+            if (pos != read.Tokens.Count)
+                throw new Exception($"Unexpected token '{read.TextOf(pos).ToString()}' at {pos}");
+
+            return term;
         }
 
         // E -> T+- ... +-T
@@ -34,12 +38,12 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         {
             Term a = GetTerm();
 
-            while (TryPeek(out Token expToken) && expToken.IsAnyMatch(Op.Plus, Op.Minus))
+            while (TryPeek(out Token expToken) && expToken.IsAnyMatch(TokenType.Sum, TokenType.Sub))
             {
                 Advance();
                 Term b = GetTerm();
 
-                a = expToken.IsMatch(Op.Plus)
+                a = expToken.IsMatch(TokenType.Sum)
                     ? new Addition(a, b)
                     : new Subtraction(a, b);
             }
@@ -52,12 +56,12 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         {
             Term a = GetUnary();
 
-            while (TryPeek(out Token termToken) && termToken.IsAnyMatch(Op.Multiply, Op.Divide))
+            while (TryPeek(out Token termToken) && termToken.IsAnyMatch(TokenType.Mul, TokenType.Div))
             {
                 Advance();
                 Term b = GetUnary();
 
-                a = termToken.IsMatch(Op.Multiply)
+                a = termToken.IsMatch(TokenType.Mul)
                     ? new Multiplication(a, b)
                     : new Division(a, b);
             }
@@ -68,7 +72,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         // U -> -U | P
         private Term GetUnary()
         {
-            if (TryPeek(out Token unarToken) && unarToken.IsMatch(Op.Minus))
+            if (TryPeek(out Token unarToken) && unarToken.IsMatch(TokenType.Sub))
             {
                 Advance();
                 return new NegateTerm(GetUnary());
@@ -82,7 +86,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         {
             Term a = GetAbc();
 
-            if (TryPeek(out Token powToken) && powToken.IsMatch(Op.Power))
+            if (TryPeek(out Token powToken) && powToken.IsMatch(TokenType.Pow))
             {
                 Advance();
                 Term b = GetUnary();
@@ -96,25 +100,25 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         private Term GetAbc()
         {
             // Get abcToken token
-            if (!TryPeek(out Token abcToken) || abcToken.Kind != TokenType.Function)
+            if (!TryPeek(out Token abcToken) || !abcToken.IsFunction())
                 return GetFactor();
 
             // Capture func
             Advance();
 
             // Move through open bracket
-            if (!TryAdvance(out Token open) || open.Kind != TokenType.OpenBracket)
+            if (!TryAdvance(out Token open) || open.Type != TokenType.OpenBracket)
                 throw new Exception("Need bracket after function");
 
             // Get function arguments
             Term[] args = GetCommaArgs();
 
             // Move through close bracket
-            if (!TryAdvance(out Token close) || close.Kind != TokenType.CloseBracket)
+            if (!TryAdvance(out Token close) || close.Type != TokenType.CloseBracket)
                 throw new Exception("Need close bracket");
 
             // Match functions
-            if (abcToken.IsMatch(Op.Pow))
+            if (abcToken.IsMatch(TokenType.Powf))
                 return new Power(args);
 
             throw new Exception("Not found function");
@@ -127,28 +131,33 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
                 throw new Exception("Unexpected end of expression");
 
             Term factor;
-            switch (factorToken.Kind)
+            switch (factorToken.Type)
             {
                 case TokenType.OpenBracket:
+
                     Advance();
                     factor = GetExpression();
 
-                    if (!TryAdvance(out Token closingBracket) || closingBracket.Kind != TokenType.CloseBracket)
+                    if (!TryAdvance(out Token closingBracket) || !closingBracket.IsMatch(TokenType.CloseBracket))
                         throw new Exception("End is not a bracket");
 
                     break;
 
                 case TokenType.Variable:
-                    factor = new Variable(factorToken.Value[0]);
+
+                    if (!TryPeekValue(out var name))
+                        throw new Exception("Invalid variable name format");
+
+                    factor = new Variable(name[0]);
                     Advance();
                     break;
 
                 case TokenType.Number:
 
-                    if (!Fraction.TryParseFraction(factorToken.Value, out var fraction))
+                    if (!TryPeekValue(out var value) || !Fraction.TryParseFraction(value, out var fraction))
                         throw new Exception("Invalid fraction format");
 
-                    factor = new Number(fraction);
+                    factor = new Number(fraction!);
                     Advance();
                     break;
 
@@ -163,12 +172,12 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         {
             var args = new List<Term>();
 
-            if (TryPeek(out Token first) && first.Kind == TokenType.CloseBracket)
+            if (TryPeek(out Token first) && first.IsMatch(TokenType.CloseBracket))
                 return args.ToArray();
 
             args.Add(GetExpression());
 
-            while (TryPeek(out Token tok) && tok.Kind == TokenType.Comma)
+            while (TryPeek(out Token tok) && tok.IsMatch(TokenType.Comma))
             {
                 Advance();
 
@@ -182,8 +191,27 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
         }
 
 
-        private bool IsOutLength() => pos >= tokens.Count;
-        private Token Advance() => tokens[pos++];
+        private bool IsOutLength() => pos >= read.Tokens.Count;
+        private Token Advance() => read.Tokens[pos++];
+
+        private bool TryPeekValue(out ReadOnlySpan<char> span)
+        {
+            if (IsOutLength())
+            {
+                span = default;
+                return false;
+            }
+
+            var text = read.TextOf(pos);
+            if (text.IsEmpty)
+            {
+                span = default;
+                return false;
+            }
+
+            span = text;
+            return true;
+        }
 
         private bool TryPeek(out Token token)
         {
@@ -192,7 +220,7 @@ namespace MathCLI.MathSyntax.ExpressionCompiler
                 token = default;
                 return false;
             }
-            token = tokens[pos];
+            token = read.Tokens[pos];
             return true;
         }
 

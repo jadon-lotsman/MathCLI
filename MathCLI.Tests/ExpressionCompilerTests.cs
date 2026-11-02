@@ -105,7 +105,7 @@ namespace MathCLI.Tests
             var read = reader.Read(expression);
             Assert.Empty(read.UnknownTokens);
 
-            var term = compiler.CompileDescent(read.Tokens);
+            var term = compiler.CompileDescent(read);
             var actual = term.Simplify();
 
             if (actual is Number num)

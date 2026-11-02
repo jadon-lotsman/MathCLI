@@ -1,5 +1,7 @@
 ﻿using MathCLI.Extensions;
+using MathCLI.MathKernel.Variables;
 using MathCLI.MathSyntax;
+using MathCLI.MathSyntax.ExpressionReader.Enums;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,82 +9,85 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MathCLI.MathSyntax.ExpressionReader
 {
     public class ExpressionReader
     {
-        public ReadResult Read(string source)
+        public ReadResult Read(ReadOnlySpan<char> span)
         {
-            List<Token> tokens = new List<Token>();
+            int pos = 0;
+            var parsed = new List<Token>();
 
-            for (int i = 0; i < source.Length; i++)
+            while (pos < span.Length)
             {
-                char ch = source[i];
-
-                if (ch.IsWhiteSpace())
+                if (span[pos].IsWhiteSpace())
+                {
+                    pos++;
                     continue;
-
-                Token token;
-
-                if (ch.IsDigit())
-                {
-                    token = CaptureNumber(source, ref i);
-                }
-                else if (ch.isLetter())
-                {
-                    token = CaptureFunctionOrVariable(source, ref i);
-                }
-                else if (ch.IsComma())
-                {
-                    token = Token.Comma(i);
-                }
-                else if (ch.IsLeftBracket())
-                {
-                    token = Token.OpenBracket(i);
-                }
-                else if (ch.IsRightBracket())
-                {
-                    token = Token.CloseBracket(i);
-                }
-                else if (Op.IsOperatorOrFunction(ch))
-                {
-                    token = Token.Operator(ch, i);
-                }
-                else
-                {
-                    token = Token.Unknown(i, 1);
                 }
 
-                tokens.Add(token);
+                var token = GetToken(span, ref pos);
+                parsed.Add(token);
             }
 
-            return new ReadResult(source, tokens);
+            var v = new ReadResult(span.ToString(), parsed);
+
+            for (int i = 0; i < parsed.Count; i++)
+            {
+                var t = v.TextOf(i).ToString();
+                Console.Write(t);
+            }
+
+            return new ReadResult(span.ToString(), parsed);
         }
 
-        private Token CaptureNumber(string expr, ref int i)
+        private Token GetToken(ReadOnlySpan<char> span, ref int pos)
         {
-            var sb = new StringBuilder();
-            sb.Append(expr[i]);
+            int start = pos;
+            char ch = span[pos];
 
+            if (char.IsDigit(ch))
+                return CaptureNumber(span, ref pos);
+
+            if (char.IsLetter(ch))
+                return CaptureFunctionOrVariable(span, ref pos);
+
+            TokenType type = ch switch
+            {
+                ',' => TokenType.Comma,
+                '(' => TokenType.OpenBracket,
+                ')' => TokenType.CloseBracket,
+                '+' => TokenType.Sum,
+                '-' => TokenType.Sub,
+                '*' => TokenType.Mul,
+                '/' => TokenType.Div,
+                '^' => TokenType.Pow,
+                _ => TokenType.Unknown,
+            };
+
+            pos = start + 1;
+            return Token.Create(type, start, 1);
+        }
+
+        private Token CaptureNumber(ReadOnlySpan<char> span, ref int pos)
+        {
+            int start = pos;
             bool hasSeparator = false;
 
-            while (i + 1 < expr.Length)
+            while (pos + 1 < span.Length)
             {
-                char next = expr[i + 1];
+                char next = span[pos + 1];
 
                 if (next.IsDigit())
                 {
-                    sb.Append(next);
-                    i++;
+                    pos++;
                 }
                 else if ((next.IsPoint() || next.IsSlash()) && !hasSeparator)
                 {
-                    if (i + 2 < expr.Length && expr[i + 2].IsDigit())
+                    if (pos + 2 < span.Length && span[pos + 2].IsDigit())
                     {
-                        sb.Append(next);
-                        i++;
+                        pos++;
                         hasSeparator = true;
                     }
                     else
@@ -96,35 +101,29 @@ namespace MathCLI.MathSyntax.ExpressionReader
                 }
             }
 
-            string number = sb.ToString();
-
-            if (!IsValidFraction(number))
-                return Token.Unknown(i, number.Length);
-
-            return Token.Number(number, i);
+            pos++;
+            int length = pos - start;
+            return Token.Create(TokenType.Number, start, length);
         }
 
-        private bool IsValidFraction(string str)
+        private Token CaptureFunctionOrVariable(ReadOnlySpan<char> span, ref int pos)
         {
-            return Regex.IsMatch(str, @"^[0-9]+(?:[./][0-9]+)?$");
-        }
-
-        private Token CaptureFunctionOrVariable(string expr, ref int i)
-        {
-            string str = expr[i].ToString();
-
-            while (i + 1 < expr.Length && char.IsLetter(expr[i + 1]))
+            int start = pos;
+            while (pos < span.Length && char.IsLetter(span[pos]))
             {
-                str += expr[++i];
+                pos++;
             }
 
-            if (Op.IsFunction(str))
-                return Token.Function(str, i);
+            int length = pos - start;
+            var name = span.Slice(start, length);
 
-            if (str.Length <= 2)
-                return Token.Variable(str, i);
+            if (name.SequenceEqual("pow"))
+                return Token.Create(TokenType.Powf, start, length);
 
-            return Token.Unknown(i, str.Length);
+            if (name.Length <= 2)
+                return Token.Create(TokenType.Variable, start);
+
+            return Token.Create(TokenType.Unknown, start, length);
         }
     }
 }

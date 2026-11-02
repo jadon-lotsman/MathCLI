@@ -19,8 +19,11 @@ namespace MathCLI.MathSyntax.ExpressionReader
         {
             Source = source;
             Tokens = tokens;
-            UnknownTokens = tokens.Where(t => t.Kind == TokenType.Unknown).ToList();
+            UnknownTokens = tokens.Where(t => t.Type == TokenType.Unknown).ToList();
             HasUnknown = UnknownTokens.Any();
         }
+
+        public ReadOnlySpan<char> TextOf(int index)
+            => Source.AsSpan(Tokens[index].Start, Tokens[index].Length);
     }
 }
