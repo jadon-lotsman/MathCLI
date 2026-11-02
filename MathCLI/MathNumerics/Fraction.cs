@@ -140,25 +140,30 @@ namespace MathCLI.MathNumerics
             return a | b;
         }
 
-        public static bool TryParseFraction(string? str, out Fraction? fraction)
+        public static bool TryParseFraction(ReadOnlySpan<char> span, out Fraction? fraction)
         {
             fraction = default;
 
-            if (string.IsNullOrWhiteSpace(str))
-                return false;
+            int start = 0, end = span.Length - 1;
+            while (start <= end && char.IsWhiteSpace(span[start])) start++;
+            while (end >= start && char.IsWhiteSpace(span[end])) end--;
+            if (start > end) return false;
+            span = span.Slice(start, end - start + 1);
 
-            str = str.Trim();
-            if (str.Contains('/'))
+            int slash = span.IndexOf('/');
+
+            if (slash >= 0)
             {
-                var splitted = str.Split('/');
+                var numeratorSpan = span.Slice(0, slash);
+                var denominatorSpan = span.Slice(slash + 1);
 
-                if (splitted.Length != 2)
+                if (denominatorSpan.IndexOf('/') >= 0)
                     return false;
 
-                if (!int.TryParse(splitted[0], CultureInfo.InvariantCulture, out int numerator))
+                if (!int.TryParse(numeratorSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numerator))
                     return false;
 
-                if (!int.TryParse(splitted[1], CultureInfo.InvariantCulture, out int denominator))
+                if (!int.TryParse(denominatorSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out int denominator))
                     return false;
 
                 if (denominator == 0)
@@ -168,13 +173,23 @@ namespace MathCLI.MathNumerics
             }
             else
             {
-                if (!double.TryParse(str, NumberStyles.Float, CultureInfo.InvariantCulture, out double number))
+                if (!double.TryParse(span, NumberStyles.Float, CultureInfo.InvariantCulture, out double number))
                     return false;
 
                 fraction = new Fraction(number);
             }
 
             return true;
+        }
+
+        public static bool TryParseFraction(string? str, out Fraction? fraction)
+        {
+            fraction = default;
+
+            if (string.IsNullOrWhiteSpace(str))
+                return false;
+
+            return TryParseFraction(str.AsSpan(), out fraction);
         }
 
         public override string ToString()
