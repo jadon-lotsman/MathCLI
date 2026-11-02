@@ -31,14 +31,6 @@ namespace MathCLI.MathSyntax.ExpressionReader
                 parsed.Add(token);
             }
 
-            var v = new ReadResult(span.ToString(), parsed);
-
-            for (int i = 0; i < parsed.Count; i++)
-            {
-                var t = v.TextOf(i).ToString();
-                Console.Write(t);
-            }
-
             return new ReadResult(span.ToString(), parsed);
         }
 
@@ -73,27 +65,22 @@ namespace MathCLI.MathSyntax.ExpressionReader
         private Token CaptureNumber(ReadOnlySpan<char> span, ref int pos)
         {
             int start = pos;
-            bool hasSeparator = false;
+            int i = pos + 1;
+            bool usedSeparator = false;
 
-            while (pos + 1 < span.Length)
+            while (i < span.Length)
             {
-                char next = span[pos + 1];
+                char c = span[i];
 
-                if (next.IsDigit())
+                if (c.IsDigit())
                 {
-                    pos++;
+                    i++;
                 }
-                else if ((next.IsPoint() || next.IsSlash()) && !hasSeparator)
+                else if (!usedSeparator && (c.IsPoint() || c.IsSlash())
+                         && i + 1 < span.Length && span[i + 1].IsDigit())
                 {
-                    if (pos + 2 < span.Length && span[pos + 2].IsDigit())
-                    {
-                        pos++;
-                        hasSeparator = true;
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    usedSeparator = true;
+                    i++;
                 }
                 else
                 {
@@ -101,29 +88,27 @@ namespace MathCLI.MathSyntax.ExpressionReader
                 }
             }
 
-            pos++;
-            int length = pos - start;
-            return Token.Create(TokenType.Number, start, length);
+            pos = i;
+            return Token.Create(TokenType.Number, start, i-start);
         }
 
         private Token CaptureFunctionOrVariable(ReadOnlySpan<char> span, ref int pos)
         {
             int start = pos;
-            while (pos < span.Length && char.IsLetter(span[pos]))
-            {
-                pos++;
-            }
+            int i = pos;
 
-            int length = pos - start;
+            while (i < span.Length && char.IsLetter(span[i]))
+                i++;
+
+            int length = i - start;
             var name = span.Slice(start, length);
+
+            pos = i;
 
             if (name.SequenceEqual("pow"))
                 return Token.Create(TokenType.Powf, start, length);
 
-            if (name.Length <= 2)
-                return Token.Create(TokenType.Variable, start);
-
-            return Token.Create(TokenType.Unknown, start, length);
+            return Token.Create(TokenType.Variable, start, length);
         }
     }
 }
